@@ -1,2 +1,2 @@
 # stockJournal
-stockJournal
+StockJournal
