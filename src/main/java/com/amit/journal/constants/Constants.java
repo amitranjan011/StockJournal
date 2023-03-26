@@ -1,6 +1,7 @@
 package com.amit.journal.constants;
 
 public interface Constants {
+    String USERID_HEADER = "userId";
     String TRANSACTION_TYPE_BUY = "BUY";
     String TRANSACTION_TYPE_SELL = "SELL";
     String USERID = "userId";

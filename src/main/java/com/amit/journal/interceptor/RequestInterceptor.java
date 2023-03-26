@@ -3,6 +3,7 @@ package com.amit.journal.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amit.journal.constants.Constants;
 import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-		String userId = request.getHeader("userId");
+		String userId = request.getHeader(Constants.USERID_HEADER);
 		if (CommonUtil.isNullOrEmpty(userId)) {
 			LOG.warn("@@@@@@@@@@@@@@@ userId is null in the request. ");
 		}

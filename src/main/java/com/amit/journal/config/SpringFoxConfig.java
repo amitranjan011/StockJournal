@@ -1,6 +1,7 @@
 package com.amit.journal.config;
 
 
+import com.amit.journal.constants.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ParameterBuilder;
@@ -27,21 +28,25 @@ public class SpringFoxConfig {
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .build()
-                .globalRequestParameters(
+                .globalRequestParameters( //RequestParameterBuilder
                         singletonList(new springfox.documentation.builders.RequestParameterBuilder()
-                                .name("userId")
-                                .description("userId")
+                                .name(Constants.USERID_HEADER)
+                                .description(Constants.USERID_HEADER)
+
                                 .in(ParameterType.HEADER)
                                 .required(true)
-                                .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
+//                                .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
+                                .query(simpleParameterSpecificationBuilder -> simpleParameterSpecificationBuilder
+                                        .model(modelSpecificationBuilder -> modelSpecificationBuilder.scalarModel(ScalarType.STRING))
+                                        .defaultValue("ar"))
                                 .build()));
     }
-    private List<Parameter> operationParameters() {
+    /*private List<Parameter> operationParameters() {
         List<Parameter> headers = new ArrayList<>();
         headers.add(new ParameterBuilder().name("userId")
                 .description("userId")
                 .modelRef(new ModelRef("string")).parameterType("header")
                 .required(true).build());
         return headers;
-    }
+    }*/
 }
