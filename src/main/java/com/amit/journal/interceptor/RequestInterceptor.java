@@ -25,6 +25,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, OPTIONS");
+		response.setHeader("Access-Control-Allow-Headers", "*");
 		return true;
 	}
 
