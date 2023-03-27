@@ -55,8 +55,6 @@ public class Transaction extends UserBase {
 	public void setAction(String action) {
 		this.action = action;
 	}
-
-
 	
 	public String getName() {
 		return name;

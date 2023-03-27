@@ -2,6 +2,7 @@ package com.amit.journal.service.util;
 
 import com.amit.journal.constants.Constants;
 import com.amit.journal.model.Transaction;
+import com.amit.journal.model.TransactionBasic;
 import com.amit.journal.model.TransactionSummary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,6 +46,7 @@ public class TransactionSummaryServiceUtil {
             Period period = Period.between(tranSummaryDB.getEntryDate(), tranSummaryDB.getSellDate());
             tranSummaryDB.setDaysHeld(period.getDays());
         }
+        tranSummaryDB.getTransList().addAll(tranSummaryNew.getTransList());
         updateProfit(tranSummaryDB);
         return tranSummaryDB;
     }
@@ -84,7 +86,20 @@ public class TransactionSummaryServiceUtil {
         transactionSummary.setProfit(0); // update while aggregation
         transactionSummary.setUnsoldQty(0); // update while aggregation
         transactionSummary.setSellDate(null);
+        TransactionBasic transactionBasic = getTransBasicData(transactionEntry);
+        transactionSummary.getTransList().add(transactionBasic);
         TransactionSummaryServiceUtil.updateBuySellData(transactionEntry, transactionSummary);
         return transactionSummary;
+    }
+
+    private static TransactionBasic getTransBasicData(Transaction transactionEntry) {
+        TransactionBasic transactionBasic = new TransactionBasic();
+        transactionBasic.setPrice(transactionEntry.getPrice());
+        transactionBasic.setQuantity(transactionEntry.getQuantity());
+        transactionBasic.setStopLoss(transactionEntry.getStopLoss());
+        transactionBasic.setTotalValue(transactionEntry.getTotalValue());
+        transactionBasic.setTransactionDate(transactionEntry.getTransactionDate());
+        transactionBasic.setTransactionType(transactionEntry.getTransactionType());
+        return transactionBasic;
     }
 }

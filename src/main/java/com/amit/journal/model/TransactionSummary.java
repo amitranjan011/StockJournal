@@ -6,6 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TransactionSummary extends UserBase {
     @Id
@@ -38,6 +40,7 @@ public class TransactionSummary extends UserBase {
 
     private String action;
     private String positionStatus = "OPEN";
+    private List<TransactionBasic> transList;
 
     public String getId() {
         return id;
@@ -207,6 +210,15 @@ public class TransactionSummary extends UserBase {
         this.positionStatus = positionStatus;
     }
 
+    public List<TransactionBasic> getTransList() {
+        if (this.transList == null) this.transList = new ArrayList<>();
+        return transList;
+    }
+
+    public void setTransList(List<TransactionBasic> transList) {
+        this.transList = transList;
+    }
+
     @Override
     public String toString() {
         return "TransactionSummary{" +
@@ -231,6 +243,7 @@ public class TransactionSummary extends UserBase {
                 ", pctReturn=" + pctReturn +
                 ", action='" + action + '\'' +
                 ", positionStatus='" + positionStatus + '\'' +
+                ", transList=" + transList +
                 '}';
     }
 }

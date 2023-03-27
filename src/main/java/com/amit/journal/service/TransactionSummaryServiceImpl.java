@@ -36,22 +36,6 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 .map(this::execute)
                 .collect(Collectors.toList());
         LOG.info("Transactions  processed");
-
-/*        CompletableFuture<Void> allFutures = CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[futures.size()]));
-
-        CompletableFuture<List<String>> allCompletableFuture = allFutures.thenApply(future -> {
-            return futures.stream()
-                    .map(completableFuture -> completableFuture.join())
-                    .collect(Collectors.toList());
-        });*/
-
-        try {
-//            allCompletableFuture.get();
-            LOG.info("All the transactions are processed. Now processing KPI");
-        } catch (Exception e) {
-
-        }
     }
     private CompletableFuture<String> execute(Transaction transactionEntry) {
         return CompletableFuture.supplyAsync(() -> {
@@ -74,13 +58,13 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         TransactionSummary transactionSummaryDB = transactionsSummaryDAO.findBySymbolAnsOpen(transactionSummary.getSymbol());
         LOG.debug("transactionSummaryDB in db is : {}", transactionSummaryDB);
         if (CommonUtil.isObjectNullOrEmpty(transactionSummaryDB)) {
-            addSummary(transactionSummary); // new entry
+            addSummaryToDB(transactionSummary); // new entry
         } else {
             String id = transactionSummaryDB.getId();
             copyTranSummaryToHistory(transactionSummaryDB);
             transactionSummaryDB.setId(id);
             TransactionSummaryServiceUtil.aggregateSummary(transactionSummary, transactionSummaryDB);
-            updateSummary(transactionSummaryDB);
+            updateSummaryToDB(transactionSummaryDB);
         }
         return transactionSummary.getId();
     }
@@ -90,11 +74,11 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         transactionsSummaryDAO.persist(transactionSummary, CollectionsName.TRANSACTIONS_SUMMARY_HISTORY);
     }
 
-    private String addSummary(TransactionSummary transactionSummary) {
+    private String addSummaryToDB(TransactionSummary transactionSummary) {
         transactionsSummaryDAO.persist(transactionSummary);
         return transactionSummary.getId();
     }
-    private String updateSummary(TransactionSummary transactionSummary) {
+    private String updateSummaryToDB(TransactionSummary transactionSummary) {
         transactionsSummaryDAO.persist(transactionSummary);
         return transactionSummary.getId();
     }
