@@ -38,7 +38,8 @@ public class SpringFoxConfig {
 //                                .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING)))
                                 .query(simpleParameterSpecificationBuilder -> simpleParameterSpecificationBuilder
                                         .model(modelSpecificationBuilder -> modelSpecificationBuilder.scalarModel(ScalarType.STRING))
-                                        .defaultValue("ar"))
+                                        //.defaultValue("ar")
+                                        )
                                 .build()));
     }
     /*private List<Parameter> operationParameters() {
