@@ -27,6 +27,7 @@ import java.util.List;
 @EnableAutoConfiguration
 @ComponentScan(basePackages="com.amit.journal")
 
+
 public class StockJournalApplication {
 
 	public static void main(String[] args) {
