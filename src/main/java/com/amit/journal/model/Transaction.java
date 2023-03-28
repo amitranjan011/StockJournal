@@ -92,7 +92,7 @@ public class Transaction extends UserBase {
 		if (quantity > -1) {
 			this.transactionType = Constants.TRANSACTION_TYPE_BUY;
 		} else this.transactionType = Constants.TRANSACTION_TYPE_SELL;
-		setTransactionDate(LocalDate.now());
+//		setTransactionDate(LocalDate.now());
 	}
 	public void setTransactionType(String transactionType) {
 		this.transactionType = transactionType;
