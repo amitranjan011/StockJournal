@@ -3,6 +3,8 @@ package com.amit.journal.service;
 import com.amit.journal.constants.Constants;
 import com.amit.journal.model.TransactionKPI;
 import com.amit.journal.model.TransactionSummary;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -14,7 +16,7 @@ import java.util.stream.Stream;
 @Service
 public class TransactionKPIServiceImpl implements TransactionKPIService {
 
-
+    private static final Logger LOG = LogManager.getLogger(TransactionKPIServiceImpl.class);
     @Override
     public TransactionKPI generateKPI(List<TransactionSummary> tramSummaryList) {
         Supplier<Stream<TransactionSummary>> summaryStream = tramSummaryList::stream;

@@ -1,7 +1,6 @@
 package com.amit.journal.util;
 
 import com.amit.journal.config.PropertyReader;
-import com.amit.journal.service.TransactionServiceImpl;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,7 +11,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class CommonUtil {
-    private static final Logger LOG = LogManager.getLogger(TransactionServiceImpl.class);
+    private static final Logger LOG = LogManager.getLogger(CommonUtil.class);
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     public static String getDateString(LocalDate dateObj) {
