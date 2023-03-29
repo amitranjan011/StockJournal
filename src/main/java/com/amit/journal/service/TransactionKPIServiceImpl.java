@@ -29,12 +29,14 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
 //        DoubleSummaryStatistics statistics = winning.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics();
         double avgGainPct = winning.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
         double avgLossPct = losing.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
+        double avgHolddays = summaryStream.get().mapToInt(TransactionSummary::getDaysHeld).summaryStatistics().getAverage();
 
         TransactionKPI transactionKPI = new TransactionKPI();
         transactionKPI.setAvgGainPct(avgGainPct);
         transactionKPI.setAvgLossPct(avgLossPct);
         transactionKPI.setBestStock(best);
         transactionKPI.setWorstStock(worst);
+        transactionKPI.setAvgHoldDays(avgHolddays);
         return transactionKPI;
     }
 }

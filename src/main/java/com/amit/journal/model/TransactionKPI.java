@@ -3,6 +3,7 @@ package com.amit.journal.model;
 public class TransactionKPI /*extends UserBase */{
     private double avgGainPct;
     private double avgLossPct;
+    private double avgHoldDays;
     private TransactionSummary bestStock;
     private TransactionSummary worstStock;
     //max holding period
@@ -39,11 +40,20 @@ public class TransactionKPI /*extends UserBase */{
         this.worstStock = worstStock;
     }
 
+    public double getAvgHoldDays() {
+        return avgHoldDays;
+    }
+
+    public void setAvgHoldDays(double avgHoldDays) {
+        this.avgHoldDays = avgHoldDays;
+    }
+
     @Override
     public String toString() {
         return "TransactionKPI{" +
                 "avgGainPct=" + avgGainPct +
                 ", avgLossPct=" + avgLossPct +
+                ", avgHoldDays=" + avgHoldDays +
                 ", bestStock=" + bestStock +
                 ", worstStock=" + worstStock +
                 '}';
