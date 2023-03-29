@@ -26,7 +26,6 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
         List<TransactionSummary> winning = summaryStream.get().filter(summary -> summary.getPctReturn() < Constants.HOLDING_UNSOLD_RETURN_PERCENT && summary.getPctReturn() > 0).collect(Collectors.toList());
         List<TransactionSummary> losing = summaryStream.get().filter(summary -> summary.getPctReturn() < 0).collect(Collectors.toList());
 
-//        DoubleSummaryStatistics statistics = winning.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics();
         double avgGainPct = winning.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
         double avgLossPct = losing.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
         double avgHoldDays = summaryStream.get().mapToInt(TransactionSummary::getDaysHeld).summaryStatistics().getAverage();

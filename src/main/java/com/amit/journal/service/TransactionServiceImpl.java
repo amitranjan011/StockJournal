@@ -48,14 +48,14 @@ public class TransactionServiceImpl implements TransactionService {
 				LocalDate today = LocalDate.now();
 				transactions.forEach(transaction -> transaction.setTransactionDate(today));
 			}
-			System.out.println(transactions);
+			LOG.info("Successfully saved the transactions file and populated transactions objects for file : {}", file.getOriginalFilename());
 
 			transactionsDAO.insertMultiDocuments(transactions);
 			transactionSummaryService.processTransactions(transactions);
-//			return transactionsDAO.findAll();
+			LOG.info("Successfully saved the transactions objects for file : {}", file.getOriginalFilename());
         } catch (Exception ex) {
-			ex.printStackTrace();
-			System.err.println(ExceptionUtils.getStackTrace(ex));
+			LOG.error("Exception while saving file for transaction upload for file: {} : {}"
+					,file.getOriginalFilename(), ExceptionUtils.getStackTrace(ex));
 			throw new RuntimeException(ex);
         }
 	}

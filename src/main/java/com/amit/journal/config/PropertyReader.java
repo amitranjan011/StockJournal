@@ -33,11 +33,11 @@ public class PropertyReader implements InitializingBean {
 
 	private String getPropertyVal(String propertyKey) {
 		try {
-				return environment.getProperty(propertyKey);
+			return environment.getProperty(propertyKey);
 		} catch (Exception e) {
-			LOG.error("error getting value for property : " + propertyKey + " from external propSource, exception : {} ");
+			LOG.error("error getting value for property : " + propertyKey + " from external propSource, exception : {} ", CommonUtil.getStackTrace(e));
 		}
-		return null;
+		return "";
 	}
 
 	public static String getProperty(String propertyKey) {

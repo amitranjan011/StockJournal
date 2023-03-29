@@ -1,22 +1,24 @@
 package com.amit.journal.util;
 
 import com.amit.journal.config.PropertyReader;
+import com.amit.journal.service.TransactionServiceImpl;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalField;
-import java.util.StringJoiner;
 
 public class CommonUtil {
+    private static final Logger LOG = LogManager.getLogger(TransactionServiceImpl.class);
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     public static String getDateString(LocalDate dateObj) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         String dateString = dateObj.format(formatter);
-        System.out.println(dateString);
+        LOG.info("dateString : {} for dateObj  : {}", dateString, dateObj.toString());
         return dateString;
     }
 
@@ -36,6 +38,7 @@ public class CommonUtil {
         String userDir = System.getProperty("user.dir");
         String uploadDir = PropertyReader.getProperty("upload.dir.path", userDir);
         System.out.println("uploadDir == " + uploadDir);
+        LOG.info("uploadDir  : {}", uploadDir);
         return uploadDir;
     }
 

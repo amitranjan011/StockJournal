@@ -44,12 +44,14 @@ public class HoldingServiceImpl implements HoldingService {
             List<HoldingItem> holdingItems = csvToBean.parse();
             Holding holding = mapHoldingObject(holdingItems, holdingDate, cash);
             populateDayChange(holding);
-            System.out.println(holdingItems);
-            holdingDAOImpl.persist(holding);
 
+            LOG.info("Successfully saved the holding file and populated holding objects for file : {}", file.getOriginalFilename());
+            holdingDAOImpl.persist(holding);
+            LOG.info("Successfully saved  the holding objects in db for file : {}", file.getOriginalFilename());
         } catch (Exception ex) {
             ex.printStackTrace();
-            LOG.error(ExceptionUtils.getStackTrace(ex));
+            LOG.error("Exception while saving file for holding upload for file: {} : {}"
+                    ,file.getOriginalFilename(), ExceptionUtils.getStackTrace(ex));
             throw new RuntimeException(ex);
         }
     }
