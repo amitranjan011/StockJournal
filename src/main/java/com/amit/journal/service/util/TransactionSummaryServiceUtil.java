@@ -81,7 +81,7 @@ public class TransactionSummaryServiceUtil {
         transactionSummary.setStopLoss(transactionEntry.getStopLoss());
         transactionSummary.setPositionStatus(Constants.POSITION_STATUS_OPEN);
         transactionSummary.setDaysHeld(0); // update while aggregation
-        transactionSummary.setLastTradingPrice(0); // update while fetching data
+        transactionSummary.setLastTradingPrice(transactionEntry.getLastTradingPrice()); // update while fetching data
         transactionSummary.setPctReturn(0); // update while aggregation
         transactionSummary.setProfit(0); // update while aggregation
         transactionSummary.setUnsoldQty(0); // update while aggregation

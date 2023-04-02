@@ -14,10 +14,16 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
 
 @Service
 public class TransactionSummaryServiceImpl implements TransactionSummaryService {
@@ -94,10 +100,54 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         List<TransactionSummary> summaryList = getSummaryRecords(symbol, startDate, endDate);
         TransactionKPI transactionKPI = transactionKPIService.generateKPI(summaryList);
 
+        populateLastTradingPrice(summaryList);
         holder.setSummaryList(summaryList);
         holder.setTransactionKPI(transactionKPI);
         holder.setUserId(UserContext.getUserId());
         holder.setLastUpdate(LocalDate.now());
         return holder;
+    }
+
+    private double populateLastTradingPrice(List<TransactionSummary> summaryList) {
+//        List<String> symbolList = summaryList.stream().map(summary -> summary.getSymbol()).toArray(); .collect(Collectors.toList());
+        String [] symbolArray = summaryList.stream().map(summary -> summary.getSymbol() + ".BO").toArray(String[] :: new);
+        Map<String, Stock> stocks = getLastTradingPrice(symbolArray);
+
+//        summaryList.forEach(summary -> summary.setLastTradingPrice(populateLastTradingPrice(summary.getSymbol())));
+        summaryList.forEach(summary -> populateLTP(summary, stocks));
+        return 0;
+    }
+
+    private void populateLTP(TransactionSummary tranSummary, Map<String, Stock> stocks) {
+        double stockPrice = -1;
+        Stock stock = stocks.get(tranSummary.getSymbol() + ".BO");
+        if (stock != null) {
+            BigDecimal price = stock.getQuote().getPrice();
+            if (price != null) stockPrice = price.doubleValue();
+        }
+        tranSummary.setLastTradingPrice(stockPrice);
+    }
+    private double populateLastTradingPrice(String symbol) {
+        try {
+            String yahooSymbol = symbol + ".BO";
+            Stock stock = YahooFinance.get(yahooSymbol);
+            BigDecimal price = stock.getQuote().getPrice();
+            LOG.info("Price for : {} is : {}", symbol, price);
+            return price.doubleValue();
+        } catch (IOException e) {
+            LOG.error("Exception fetching price for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(e));
+        }
+        return -1;
+    }
+
+    private Map<String, Stock> getLastTradingPrice(String[] symbols) {
+        try {
+            Map<String, Stock> stocks = YahooFinance.get(symbols, true);
+            return stocks;
+        } catch (IOException e) {
+            LOG.error("Exception fetching price : {}", CommonUtil.getStackTrace(e));
+        }
+        return null;
     }
 }
