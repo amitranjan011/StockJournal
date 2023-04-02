@@ -22,9 +22,8 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
         Supplier<Stream<TransactionSummary>> summaryStream = tramSummaryList::stream;
 
         Comparator<TransactionSummary> comparator = Comparator.comparing(TransactionSummary::getPctReturn);
-        TransactionSummary best = summaryStream.get().filter(summary -> summary.getPctReturn() < Constants.HOLDING_UNSOLD_RETURN_PERCENT)
-                .max(comparator).orElse(null);
-        TransactionSummary worst = summaryStream.get().min(comparator).orElse(null);
+        TransactionSummary best = summaryStream.get().filter(summary -> summary.getPctReturn() < Constants.HOLDING_UNSOLD_RETURN_PERCENT).max(comparator).orElse(null);
+        TransactionSummary worst = summaryStream.get().filter(summary -> summary.getPctReturn() < Constants.HOLDING_UNSOLD_RETURN_PERCENT).min(comparator).orElse(null);
 
         List<TransactionSummary> winning = summaryStream.get().filter(summary -> summary.getPctReturn() < Constants.HOLDING_UNSOLD_RETURN_PERCENT && summary.getPctReturn() > 0).collect(Collectors.toList());
         List<TransactionSummary> losing = summaryStream.get().filter(summary -> summary.getPctReturn() < 0).collect(Collectors.toList());
