@@ -13,17 +13,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import yahoofinance.Stock;
-import yahoofinance.YahooFinance;
 
 @Service
 public class TransactionSummaryServiceImpl implements TransactionSummaryService {
