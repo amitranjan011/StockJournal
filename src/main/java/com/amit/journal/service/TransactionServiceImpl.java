@@ -42,10 +42,10 @@ public class TransactionServiceImpl implements TransactionService {
 
             // convert `CsvToBean` object to list of users
             List<Transaction> transactions = csvToBean.parse();
+			LocalDate today = LocalDate.now();
 			if (!CommonUtil.isObjectNullOrEmpty(transactionDate)) {
 				transactions.forEach(transaction -> transaction.setTransactionDate(transactionDate));
 			} else {
-				LocalDate today = LocalDate.now();
 				transactions.forEach(transaction -> transaction.setTransactionDate(today));
 			}
 			LOG.info("Successfully saved the transactions file and populated transactions objects for file : {}", file.getOriginalFilename());

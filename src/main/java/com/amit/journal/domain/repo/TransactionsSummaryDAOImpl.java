@@ -38,7 +38,7 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
     }
 
     @Override
-    public TransactionSummary findBySymbolAnsOpen(String symbol) {
+    public TransactionSummary findBySymbolAndOpen(String symbol) {
         Query query  = getUserQuery();
         query.addCriteria(new Criteria().andOperator(
                 where(Constants.POSITION_STATUS_key).is(Constants.POSITION_STATUS_OPEN), where(Constants.SYMBOL).is(symbol)));
@@ -66,4 +66,8 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
         return findAll(query);
     }
 
+    @Override
+    public List<TransactionSummary> getAllRecords() {
+        return findAll();
+    }
 }

@@ -43,4 +43,13 @@ public class TransactionSummaryController {
             , @PathVariable @Parameter(description = "startDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate) {
         return transactionSummaryService.getSummaryRecordsAndKPI(symbol, startDate, endDate);
     }
+    @GetMapping(value = "/transactions/summary/update")
+    @ApiOperation(value = "Get LTP and related unrealized data details  ")
+    @Operation(summary = "Get LTP and related unrealized data details ",
+            description = "Get LTP and related unrealized data details"
+            , responses = { @ApiResponse(responseCode = "200", description = "successful operation"
+            , content = @Content(schema = @Schema(implementation = TransactionSummaryKPIHolder.class)) )} )
+    public void updateLTPData() {
+         transactionSummaryService.updateAdditionalInfo();
+    }
 }

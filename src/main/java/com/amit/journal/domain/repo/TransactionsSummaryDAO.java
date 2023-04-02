@@ -6,8 +6,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TransactionsSummaryDAO {
-
-    TransactionSummary findBySymbolAnsOpen(String symbol);
+    TransactionSummary findBySymbolAndOpen(String symbol);
 
     List<TransactionSummary> getSummaryRecords(String symbol, LocalDate startDate, LocalDate endDate);
+
+    List<TransactionSummary> getAllRecords();
 }

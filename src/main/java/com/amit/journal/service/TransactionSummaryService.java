@@ -15,4 +15,6 @@ public interface TransactionSummaryService {
     List<TransactionSummary> getSummaryRecords(String symbol, LocalDate startDate, LocalDate endDate);
 
     TransactionSummaryKPIHolder getSummaryRecordsAndKPI(String symbol, LocalDate startDate, LocalDate endDate);
+
+    void updateAdditionalInfo();
 }

@@ -22,10 +22,14 @@ public class TransactionSummary extends UserBase {
 
     private int daysHeld;
     private String symbol;
+    private String internalSymbol;
 
     private int buyQuantity;
     private int sellQuantity;
     private int unsoldQty;
+
+    private double unrealizedProfit;
+    private double unrealizedProfitPct;
     private double buyPrice;
     private double sellPrice;
     private double lastTradingPrice;
@@ -219,6 +223,30 @@ public class TransactionSummary extends UserBase {
         this.transList = transList;
     }
 
+    public String getInternalSymbol() {
+        return internalSymbol;
+    }
+
+    public void setInternalSymbol(String internalSymbol) {
+        this.internalSymbol = internalSymbol;
+    }
+
+    public double getUnrealizedProfit() {
+        return unrealizedProfit;
+    }
+
+    public void setUnrealizedProfit(double unrealizedProfit) {
+        this.unrealizedProfit = unrealizedProfit;
+    }
+
+    public double getUnrealizedProfitPct() {
+        return unrealizedProfitPct;
+    }
+
+    public void setUnrealizedProfitPct(double unrealizedProfitPct) {
+        this.unrealizedProfitPct = unrealizedProfitPct;
+    }
+
     @Override
     public String toString() {
         return "TransactionSummary{" +
@@ -227,9 +255,12 @@ public class TransactionSummary extends UserBase {
                 ", sellDate=" + sellDate +
                 ", daysHeld=" + daysHeld +
                 ", symbol='" + symbol + '\'' +
+                ", internalSymbol='" + internalSymbol + '\'' +
                 ", buyQuantity=" + buyQuantity +
                 ", sellQuantity=" + sellQuantity +
                 ", unsoldQty=" + unsoldQty +
+                ", unrealizedProfit=" + unrealizedProfit +
+                ", unrealizedProfitPct=" + unrealizedProfitPct +
                 ", buyPrice=" + buyPrice +
                 ", sellPrice=" + sellPrice +
                 ", lastTradingPrice=" + lastTradingPrice +

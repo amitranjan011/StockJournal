@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -40,9 +42,14 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 .map(this::execute)
                 .collect(Collectors.toList());
         LOG.info("Transactions  processed");
+        try {
+            setTimerForDataUpdate();
+        } catch (Exception e) {
+            LOG.error("Exception : {}", CommonUtil.getStackTrace(e));
+        }
     }
     private CompletableFuture<String> execute(Transaction transactionEntry) {
-        return CompletableFuture.supplyAsync(() -> {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
             UserContext.setUserId(transactionEntry.getUserId());
             LOG.info("processing transactionEntry : {}",transactionEntry);
             return mapToTransactionSummary(transactionEntry);
@@ -53,13 +60,15 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             LOG.error("Exception : {}", CommonUtil.getStackTrace(exception));
             return null;
         });
+
+        return future;
     }
 
     private TransactionSummary mapToTransactionSummary(Transaction transactionEntry) {
         return TransactionSummaryServiceUtil.mapToTransactionSummary(transactionEntry);
     }
     private String processTransactionSummary(TransactionSummary transactionSummary) {
-        TransactionSummary transactionSummaryDB = transactionsSummaryDAO.findBySymbolAnsOpen(transactionSummary.getSymbol());
+        TransactionSummary transactionSummaryDB = transactionsSummaryDAO.findBySymbolAndOpen(transactionSummary.getSymbol());
         LOG.debug("transactionSummaryDB in db is : {}", transactionSummaryDB);
         if (CommonUtil.isObjectNullOrEmpty(transactionSummaryDB)) {
             addSummaryToDB(transactionSummary); // new entry
@@ -98,26 +107,17 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         List<TransactionSummary> summaryList = getSummaryRecords(symbol, startDate, endDate);
         TransactionKPI transactionKPI = transactionKPIService.generateKPI(summaryList);
 
-        populateLastTradingPrice(summaryList);
+//        populateLastTradingPrice(summaryList);
         holder.setSummaryList(summaryList);
         holder.setTransactionKPI(transactionKPI);
         holder.setUserId(UserContext.getUserId());
         holder.setLastUpdate(LocalDate.now());
         return holder;
     }
-
-    private double populateLastTradingPrice(List<TransactionSummary> summaryList) {
-        long start = System.currentTimeMillis();
-        LOG.info("Started calculating LTP ================ START");
-        summaryList.forEach(summary -> summary.setLastTradingPrice(populateLastTradingPrice(summary.getSymbol())));
-        LOG.info("Completed calculating LTP ================ Time taken : {} ms", ( System.currentTimeMillis() - start));
-        return 0;
-    }
-    private double populateLastTradingPrice(String symbol) {
+    private double getLastTradingPrice(String symbol) {
         double stockPrice = -1;
         try {
-            String yahooSymbol = symbol + ".BO";
-            Stock stock = YahooFinance.get(yahooSymbol);
+            Stock stock = YahooFinance.get(symbol);
             if (stock != null) {
                 BigDecimal price = stock.getQuote().getPrice();
                 if (price != null) stockPrice = price.doubleValue();
@@ -128,5 +128,63 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                     , symbol, CommonUtil.getStackTrace(e));
         }
         return stockPrice;
+    }
+
+    @Override
+    public void updateAdditionalInfo() {
+        List<TransactionSummary> summaryList = transactionsSummaryDAO.getAllRecords();
+        List<CompletableFuture<String>> futures = summaryList.stream()
+                .map(this::updateSummary)
+                .collect(Collectors.toList());
+
+        LOG.info("Updating LTP and related details completed now...");
+    }
+
+    private TransactionSummary populateAdditionalData(TransactionSummary summary) {
+        double latestPrice = getLastTradingPrice(summary.getInternalSymbol());
+        double unsoldLatestValue = summary.getUnsoldQty() * latestPrice;
+        double unsoldBuyValue = summary.getUnsoldQty() * summary.getBuyPrice();
+        double unrealizedProfit = unsoldLatestValue - unsoldBuyValue;
+        double unrealizedProfitPct = (unrealizedProfit/unsoldBuyValue) * 100;
+        summary.setLastTradingPrice(latestPrice);
+        summary.setUnrealizedProfit(unrealizedProfit);
+        summary.setUnrealizedProfitPct(unrealizedProfitPct);
+        return summary;
+    }
+    private CompletableFuture<String> updateSummary(TransactionSummary summary) {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            UserContext.setUserId(summary.getUserId());
+            LOG.info("processing TransactionSummary : {}",summary);
+            return populateAdditionalData(summary);
+        }).thenApply(transactionSummary -> {
+            return updateSummaryToDB(summary);
+        }).exceptionally(exception -> {
+            LOG.error("Exception for TransactionSummary : {}", summary);
+            LOG.error("Exception : {}", CommonUtil.getStackTrace(exception));
+            return null;
+        });
+
+        return future;
+    }
+
+    private void setTimerForDataUpdate() {
+        LOG.info("Updating LTP and related details ...");
+        String userId = UserContext.getUserId();
+        Timer timer = new Timer("UPDATE_LTP_DETAILS_" + CommonUtil.getTodayDateString());
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    UserContext.setUserId(userId);
+                    updateAdditionalInfo();
+                } catch (Exception e) {
+                    LOG.error("Exception : {}", CommonUtil.getStackTrace(e));
+                }
+            }
+        };
+
+        int minutes = 1;
+        long delay = (1000 * 60 * minutes);
+        timer.schedule(timerTask, delay);
     }
 }

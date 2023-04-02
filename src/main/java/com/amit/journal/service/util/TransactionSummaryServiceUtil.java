@@ -75,6 +75,7 @@ public class TransactionSummaryServiceUtil {
         TransactionSummary transactionSummary = new TransactionSummary();
         transactionSummary.setName(transactionEntry.getName());
         transactionSummary.setSymbol(transactionEntry.getSymbol());
+        transactionSummary.setInternalSymbol((transactionEntry.getSymbol() + Constants.BSE_EXTENSION));
         transactionSummary.setComments(transactionEntry.getComments());
         transactionSummary.setStrategy(transactionEntry.getStrategy());
         transactionSummary.setAction(transactionEntry.getAction());

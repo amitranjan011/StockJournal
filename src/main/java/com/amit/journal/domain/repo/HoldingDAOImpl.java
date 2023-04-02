@@ -41,7 +41,7 @@ public class HoldingDAOImpl extends AbstractBaseDAO<Holding, String> implements 
         Query query  = getUserQuery();
 
         if (!CommonUtil.isObjectNullOrEmpty(startDate) && !CommonUtil.isObjectNullOrEmpty(endDate)) {
-            Criteria criteria = new Criteria().where(Constants.HOLDING_DATE).gte(startDate).lte(endDate);
+            Criteria criteria = Criteria.where(Constants.HOLDING_DATE).gte(startDate).lte(endDate);
             query.addCriteria(criteria);
         }
         List<Holding> list = findAll(query);
