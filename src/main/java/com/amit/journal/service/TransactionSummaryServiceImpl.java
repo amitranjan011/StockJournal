@@ -109,25 +109,11 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     }
 
     private double populateLastTradingPrice(List<TransactionSummary> summaryList) {
+        long start = System.currentTimeMillis();
         LOG.info("Started calculating LTP ================ START");
-//        List<String> symbolList = summaryList.stream().map(summary -> summary.getSymbol()).toArray(); .collect(Collectors.toList());
-//        String [] symbolArray = summaryList.stream().map(summary -> summary.getSymbol() + ".BO").toArray(String[] :: new);
-//        Map<String, Stock> stocks = getLastTradingPrice(symbolArray);
-
         summaryList.forEach(summary -> summary.setLastTradingPrice(populateLastTradingPrice(summary.getSymbol())));
-//        summaryList.forEach(summary -> populateLTP(summary, stocks));
-        LOG.info("Started calculating LTP ================ END");
+        LOG.info("Completed calculating LTP ================ Time taken : {} ms", ( System.currentTimeMillis() - start));
         return 0;
-    }
-
-    private void populateLTP(TransactionSummary tranSummary, Map<String, Stock> stocks) {
-        double stockPrice = -1;
-        Stock stock = stocks.get(tranSummary.getSymbol() + ".BO");
-        if (stock != null) {
-            BigDecimal price = stock.getQuote().getPrice();
-            if (price != null) stockPrice = price.doubleValue();
-        }
-        tranSummary.setLastTradingPrice(stockPrice);
     }
     private double populateLastTradingPrice(String symbol) {
         double stockPrice = -1;
@@ -144,15 +130,5 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                     , symbol, CommonUtil.getStackTrace(e));
         }
         return stockPrice;
-    }
-
-    private Map<String, Stock> getLastTradingPrice(String[] symbols) {
-        try {
-            Map<String, Stock> stocks = YahooFinance.get(symbols, true);
-            return stocks;
-        } catch (IOException e) {
-            LOG.error("Exception fetching price : {}", CommonUtil.getStackTrace(e));
-        }
-        return null;
     }
 }
