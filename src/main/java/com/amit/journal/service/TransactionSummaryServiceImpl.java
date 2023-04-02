@@ -109,12 +109,14 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     }
 
     private double populateLastTradingPrice(List<TransactionSummary> summaryList) {
+        LOG.info("Started calculating LTP ================ START");
 //        List<String> symbolList = summaryList.stream().map(summary -> summary.getSymbol()).toArray(); .collect(Collectors.toList());
-        String [] symbolArray = summaryList.stream().map(summary -> summary.getSymbol() + ".BO").toArray(String[] :: new);
-        Map<String, Stock> stocks = getLastTradingPrice(symbolArray);
+//        String [] symbolArray = summaryList.stream().map(summary -> summary.getSymbol() + ".BO").toArray(String[] :: new);
+//        Map<String, Stock> stocks = getLastTradingPrice(symbolArray);
 
-//        summaryList.forEach(summary -> summary.setLastTradingPrice(populateLastTradingPrice(summary.getSymbol())));
-        summaryList.forEach(summary -> populateLTP(summary, stocks));
+        summaryList.forEach(summary -> summary.setLastTradingPrice(populateLastTradingPrice(summary.getSymbol())));
+//        summaryList.forEach(summary -> populateLTP(summary, stocks));
+        LOG.info("Started calculating LTP ================ END");
         return 0;
     }
 
@@ -128,17 +130,20 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         tranSummary.setLastTradingPrice(stockPrice);
     }
     private double populateLastTradingPrice(String symbol) {
+        double stockPrice = -1;
         try {
             String yahooSymbol = symbol + ".BO";
             Stock stock = YahooFinance.get(yahooSymbol);
-            BigDecimal price = stock.getQuote().getPrice();
-            LOG.info("Price for : {} is : {}", symbol, price);
-            return price.doubleValue();
+            if (stock != null) {
+                BigDecimal price = stock.getQuote().getPrice();
+                if (price != null) stockPrice = price.doubleValue();
+            }
+            LOG.info("Price for : {} is : {}", symbol, stockPrice);
         } catch (IOException e) {
             LOG.error("Exception fetching price for : {}, exception : {}"
                     , symbol, CommonUtil.getStackTrace(e));
         }
-        return -1;
+        return stockPrice;
     }
 
     private Map<String, Stock> getLastTradingPrice(String[] symbols) {
