@@ -20,5 +20,7 @@ public interface Constants {
     String HOLDING_DATE = "date";
 
     double HOLDING_UNSOLD_RETURN_PERCENT = 99999999;
+    double HOLDING_SOLD_UNREALIZED_RETURN_PERCENT = 99999999;
     String BSE_EXTENSION = ".BO";
+    String NSE_EXTENSION = ".NS";
 }

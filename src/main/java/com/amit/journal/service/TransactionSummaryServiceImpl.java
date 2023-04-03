@@ -1,6 +1,7 @@
 package com.amit.journal.service;
 
 import com.amit.journal.constants.CollectionsName;
+import com.amit.journal.constants.Constants;
 import com.amit.journal.domain.repo.TransactionsSummaryDAOImpl;
 import com.amit.journal.interceptor.UserContext;
 import com.amit.journal.model.Transaction;
@@ -140,17 +141,15 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         LOG.info("Updating LTP and related details completed now...");
     }
 
-    private TransactionSummary populateAdditionalData(TransactionSummary summary) {
-        double latestPrice = getLastTradingPrice(summary.getInternalSymbol());
-        double unsoldLatestValue = summary.getUnsoldQty() * latestPrice;
-        double unsoldBuyValue = summary.getUnsoldQty() * summary.getBuyPrice();
-        double unrealizedProfit = unsoldLatestValue - unsoldBuyValue;
-        double unrealizedProfitPct = (unrealizedProfit/unsoldBuyValue) * 100;
-        summary.setLastTradingPrice(latestPrice);
-        summary.setUnrealizedProfit(unrealizedProfit);
-        summary.setUnrealizedProfitPct(unrealizedProfitPct);
-        return summary;
+    @Override
+    public double getLatestPrice(String symbol) {
+        double price = getLastTradingPrice(symbol + Constants.BSE_EXTENSION);
+        if (price < 0) {
+            price = getLastTradingPrice(symbol + Constants.NSE_EXTENSION);
+        }
+        return price;
     }
+
     private CompletableFuture<String> updateSummary(TransactionSummary summary) {
         CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
             UserContext.setUserId(summary.getUserId());
@@ -165,6 +164,33 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         });
 
         return future;
+    }
+
+    private TransactionSummary populateAdditionalData(TransactionSummary summary) {
+        double latestPrice = getLastTradingPrice(summary.getInternalSymbol());
+        if (latestPrice < 0) {
+            updateSymbolForNSE(summary);
+            latestPrice = getLastTradingPrice(summary.getInternalSymbol());
+        }
+        summary.setLastTradingPrice(latestPrice);
+        if (summary.getUnsoldQty() > 0) {
+            double unsoldLatestValue = summary.getUnsoldQty() * latestPrice;
+            double unsoldBuyValue = summary.getUnsoldQty() * summary.getBuyPrice();
+            double unrealizedProfit = unsoldLatestValue - unsoldBuyValue;
+            double unrealizedProfitPct = (unrealizedProfit/unsoldBuyValue) * 100;
+
+            summary.setUnrealizedProfit(unrealizedProfit);
+            summary.setUnrealizedProfitPct(unrealizedProfitPct);
+        } else {
+            summary.setUnrealizedProfit(0);
+            summary.setUnrealizedProfitPct(Constants.HOLDING_SOLD_UNREALIZED_RETURN_PERCENT);
+        }
+
+        return summary;
+    }
+
+    private void updateSymbolForNSE(TransactionSummary summary) {
+        summary.setInternalSymbol(summary.getSymbol() + Constants.NSE_EXTENSION);
     }
 
     private void setTimerForDataUpdate() {
