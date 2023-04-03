@@ -43,13 +43,21 @@ public class TransactionSummaryController {
             , @PathVariable @Parameter(description = "startDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate) {
         return transactionSummaryService.getSummaryRecordsAndKPI(symbol, startDate, endDate);
     }
-    @GetMapping(value = "/transactions/summary/update")
-    @ApiOperation(value = "Get LTP and related unrealized data details  ")
-    @Operation(summary = "Get LTP and related unrealized data details ",
-            description = "Get LTP and related unrealized data details"
-            , responses = { @ApiResponse(responseCode = "200", description = "successful operation"
-            , content = @Content(schema = @Schema(implementation = TransactionSummaryKPIHolder.class)) )} )
+    @GetMapping(value = "/transactions/summary/LTP/update")
+    @ApiOperation(value = "Update LTP and related unrealized data details  ")
+    @Operation(summary = "Update LTP and related unrealized data details ",
+            description = "Update LTP and related unrealized data details"
+            , responses = { @ApiResponse(responseCode = "200", description = "successful operation")} )
     public void updateLTPData() {
          transactionSummaryService.updateAdditionalInfo();
+    }
+
+    @GetMapping(value = "/transactions/summary/LTP/{symbol}")
+    @ApiOperation(value = "Get LTP for a symbol ")
+    @Operation(summary = "Get LTP for a symbol  ",
+            description = "Get LTP for a symbol "
+            , responses = { @ApiResponse(responseCode = "200", description = "successful operation")} )
+    public double getLatestPrice(@PathVariable String symbol) {
+        return transactionSummaryService.getLatestPrice(symbol);
     }
 }

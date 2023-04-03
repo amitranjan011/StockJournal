@@ -17,4 +17,6 @@ public interface TransactionSummaryService {
     TransactionSummaryKPIHolder getSummaryRecordsAndKPI(String symbol, LocalDate startDate, LocalDate endDate);
 
     void updateAdditionalInfo();
+
+    double getLatestPrice(String symbol);
 }
