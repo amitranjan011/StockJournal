@@ -78,7 +78,6 @@ public class HoldingServiceImpl implements HoldingService {
         Holding holding = new Holding();
         holding.setCash(cash);
 
-
         if (!CommonUtil.isObjectNullOrEmpty(holdingDate)) {
             holdingDateUpdated = holdingDate;
         }
