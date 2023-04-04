@@ -9,13 +9,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 
 public class CommonUtil {
     private static final Logger LOG = LogManager.getLogger(CommonUtil.class);
     private static final String DATE_FORMAT = "yyyy-MM-dd";
-
+    private static final String DATE_FORMAT_DDMMYYYY = "ddMMyyyy";
     public static String getDateString(LocalDate dateObj) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+        String dateString = dateObj.format(formatter);
+        LOG.info("dateString : {} for dateObj  : {}", dateString, dateObj.toString());
+        return dateString;
+    }
+
+    public static String getDateString(LocalDate dateObj, String format) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         String dateString = dateObj.format(formatter);
         LOG.info("dateString : {} for dateObj  : {}", dateString, dateObj.toString());
         return dateString;
@@ -31,6 +39,19 @@ public class CommonUtil {
 
     public static String getTodayDateString() {
         return getDateString(LocalDate.now());
+    }
+
+    public static String getStartOfWeek(LocalDate dateObj) {
+        LocalDate startDayWeek = dateObj.with(ChronoField.DAY_OF_WEEK, 1);
+        String dateString = getDateString(startDayWeek, DATE_FORMAT_DDMMYYYY);
+        LOG.info("dateString : {} for dateObj  : {}", dateString, startDayWeek.toString());
+        return dateString;
+    }
+
+    public static String getStartOfDay(LocalDate dateObj) {
+        String dateString = getDateString(dateObj, DATE_FORMAT_DDMMYYYY);
+        LOG.info("dateString : {} for dateObj  : {}", dateString, dateObj.toString());
+        return dateString;
     }
 
     public static String getUploadDir() {

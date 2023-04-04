@@ -21,6 +21,7 @@ public class Holding extends UserBase {
     private double totalPortfolioValue;
     private double dayChange;
     private double dayChgPct;
+    private String dateStr;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -116,6 +117,14 @@ public class Holding extends UserBase {
         this.dayChgPct = dayChgPct;
     }
 
+    public String getDateStr() {
+        return dateStr;
+    }
+
+    public void setDateStr(String dateStr) {
+        this.dateStr = dateStr;
+    }
+
     @Override
     public String toString() {
         return "Holding{" +
@@ -129,6 +138,7 @@ public class Holding extends UserBase {
                 ", totalPortfolioValue=" + totalPortfolioValue +
                 ", dayChange=" + dayChange +
                 ", dayChgPct=" + dayChgPct +
+                ", dateStr='" + dateStr + '\'' +
                 ", date=" + date +
                 '}';
     }

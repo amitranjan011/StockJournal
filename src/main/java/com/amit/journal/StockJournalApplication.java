@@ -18,9 +18,11 @@ import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.TimeZone;
 
 
 @SpringBootApplication
@@ -34,6 +36,12 @@ public class StockJournalApplication {
 		SpringApplication.run(StockJournalApplication.class, args);
 	}
 
+	@SuppressWarnings("static-access")
+	@PostConstruct
+	public void initTimeZone() {
+		// Setting Spring Boot SetTimeZone
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+	}
 	@Bean
 	public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
 		return new MongoTransactionManager(dbFactory);

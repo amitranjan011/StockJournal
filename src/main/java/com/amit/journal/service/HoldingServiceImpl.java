@@ -1,5 +1,6 @@
 package com.amit.journal.service;
 
+import com.amit.journal.constants.CollectionsName;
 import com.amit.journal.constants.Constants;
 import com.amit.journal.csv.helper.CSVHelper;
 import com.amit.journal.domain.repo.HoldingDAOImpl;
@@ -47,9 +48,10 @@ public class HoldingServiceImpl implements HoldingService {
 
             LOG.info("Successfully saved the holding file and populated holding objects for file : {}", file.getOriginalFilename());
             holdingDAOImpl.persist(holding);
+            Holding holdingWeek = getHoldingWeekObject(holding);
+            holdingDAOImpl.persist(holdingWeek, CollectionsName.HOLDING_WEEK);
             LOG.info("Successfully saved  the holding objects in db for file : {}", file.getOriginalFilename());
         } catch (Exception ex) {
-            ex.printStackTrace();
             LOG.error("Exception while saving file for holding upload for file: {} : {}"
                     ,file.getOriginalFilename(), ExceptionUtils.getStackTrace(ex));
             throw new RuntimeException(ex);
@@ -83,7 +85,7 @@ public class HoldingServiceImpl implements HoldingService {
         holding.setDate(holdingDateUpdated);
 
         holding.setEntries(holdingItems);
-        holding.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getDateString(holdingDateUpdated)/*, CommonUtil.getHourMinuteString(today)*/));
+        holding.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfDay(holdingDateUpdated)/*, CommonUtil.getHourMinuteString(today)*/));
         Supplier<Stream<HoldingItem>> holdingStream = holdingItems::stream;
 
         double totalBuyVal = holdingStream.get().mapToDouble(holdingEntry -> holdingEntry.getQuantity() * holdingEntry.getAvgCost()).sum();
@@ -108,5 +110,10 @@ public class HoldingServiceImpl implements HoldingService {
             holding.setDayChange(dayChange);
             holding.setDayChgPct(dayChgPct);
         }
+    }
+
+    private Holding getHoldingWeekObject(Holding holding) {
+        holding.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfWeek(holding.getDate())));
+        return holding;
     }
 }
