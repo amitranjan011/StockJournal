@@ -47,7 +47,6 @@ public class CommonUtil {
         LOG.info("dateString : {} for dateObj  : {}", dateString, startDayWeek.toString());
         return dateString;
     }
-
     public static String getStartOfDay(LocalDate dateObj) {
         String dateString = getDateString(dateObj, DATE_FORMAT_DDMMYYYY);
         LOG.info("dateString : {} for dateObj  : {}", dateString, dateObj.toString());
