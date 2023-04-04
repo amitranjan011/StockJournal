@@ -54,6 +54,9 @@ public class HoldingItem {
         this.lastPrice = lastPrice;
         double currVal = getAvgCost() * getQuantity();
         setCurrVal(currVal);
+
+        double buyVal = getAvgCost() * getQuantity();
+        setBuyVal(buyVal);
     }
 
     public double getCurrVal() {
