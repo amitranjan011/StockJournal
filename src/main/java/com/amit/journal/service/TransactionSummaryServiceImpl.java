@@ -20,6 +20,7 @@ import yahoofinance.YahooFinance;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -106,6 +107,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     public TransactionSummaryKPIHolder getSummaryRecordsAndKPI(String symbol, LocalDate startDate, LocalDate endDate) {
         TransactionSummaryKPIHolder holder = new TransactionSummaryKPIHolder();
         List<TransactionSummary> summaryList = getSummaryRecords(symbol, startDate, endDate);
+        Comparator<TransactionSummary> comparatorByReturnPct = Comparator.comparing(TransactionSummary::getUnrealizedProfitPct).thenComparing(TransactionSummary::getPctReturn);
+        summaryList.sort(comparatorByReturnPct);
         TransactionKPI transactionKPI = transactionKPIService.generateKPI(summaryList);
 
 //        populateLastTradingPrice(summaryList);
@@ -183,9 +186,13 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             summary.setUnrealizedProfitPct(unrealizedProfitPct);
         } else {
             summary.setUnrealizedProfit(0);
-            summary.setUnrealizedProfitPct(Constants.HOLDING_SOLD_UNREALIZED_RETURN_PERCENT);
+            summary.setUnrealizedProfitPct(Constants.RETURN_PERCENT_UNSOLD_UNREALISED);
         }
-
+        if (summary.getBuyQuantity() == 0) {
+            summary.setPctReturn(0);
+            summary.setProfit(0);
+            summary.setPositionStatus(Constants.POSITION_STATUS_CLOSED);
+        }
         return summary;
     }
 

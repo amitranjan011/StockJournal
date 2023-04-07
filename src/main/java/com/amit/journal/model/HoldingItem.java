@@ -1,5 +1,6 @@
 package com.amit.journal.model;
 
+import com.amit.journal.util.CommonUtil;
 import com.opencsv.bean.CsvBindByName;
 
 public class HoldingItem {
@@ -64,7 +65,7 @@ public class HoldingItem {
     }
 
     public void setCurrVal(double currVal) {
-        this.currVal = currVal;
+        this.currVal = CommonUtil.round(currVal, 2);
     }
 
     public double getBuyVal() {
@@ -72,7 +73,7 @@ public class HoldingItem {
     }
 
     public void setBuyVal(double buyVal) {
-        this.buyVal = buyVal;
+        this.buyVal = CommonUtil.round(buyVal, 2);
     }
 
     public double getProfit() {
@@ -80,7 +81,7 @@ public class HoldingItem {
     }
 
     public void setProfit(double profit) {
-        this.profit = profit;
+        this.profit = CommonUtil.round(profit, 2);
     }
 
     public double getNetChgPct() {
@@ -88,7 +89,7 @@ public class HoldingItem {
     }
 
     public void setNetChgPct(double netChgPct) {
-        this.netChgPct = netChgPct;
+        this.netChgPct = CommonUtil.round(netChgPct, 1);
     }
 
     public double getSymbolDayChangePct() {
@@ -96,7 +97,7 @@ public class HoldingItem {
     }
 
     public void setSymbolDayChangePct(double symbolDayChangePct) {
-        this.symbolDayChangePct = symbolDayChangePct;
+        this.symbolDayChangePct = CommonUtil.round(symbolDayChangePct, 2);
     }
 
     @Override

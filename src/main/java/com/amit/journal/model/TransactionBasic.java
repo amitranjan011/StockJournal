@@ -1,5 +1,6 @@
 package com.amit.journal.model;
 
+import com.amit.journal.util.CommonUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
@@ -45,7 +46,7 @@ public class TransactionBasic {
     }
 
     public void setPrice(double price) {
-        this.price = price;
+        this.price = CommonUtil.round(price, 2);
     }
 
     public double getTotalValue() {
@@ -53,7 +54,7 @@ public class TransactionBasic {
     }
 
     public void setTotalValue(double totalValue) {
-        this.totalValue = totalValue;
+        this.totalValue = CommonUtil.round(totalValue, 2);
     }
 
     public double getStopLoss() {

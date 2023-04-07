@@ -1,5 +1,6 @@
 package com.amit.journal.model;
 
+import com.amit.journal.util.CommonUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
@@ -41,6 +42,8 @@ public class TransactionSummary extends UserBase {
     private String name;
     private double profit;
     private double pctReturn;
+
+    private double totalCurrValue;
 
     private String action;
     private String positionStatus = "OPEN";
@@ -103,11 +106,13 @@ public class TransactionSummary extends UserBase {
     }
 
     public int getUnsoldQty() {
+        setTotalCurrValue(getLastTradingPrice() * unsoldQty);
         return unsoldQty;
     }
 
     public void setUnsoldQty(int unsoldQty) {
         this.unsoldQty = unsoldQty;
+        setTotalCurrValue(getLastTradingPrice() * unsoldQty);
     }
 
     public double getBuyPrice() {
@@ -115,7 +120,7 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setBuyPrice(double buyPrice) {
-        this.buyPrice = buyPrice;
+        this.buyPrice = CommonUtil.round(buyPrice, 2);
     }
 
     public double getSellPrice() {
@@ -123,15 +128,17 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setSellPrice(double sellPrice) {
-        this.sellPrice = sellPrice;
+        this.sellPrice = CommonUtil.round(sellPrice, 2);
     }
 
     public double getLastTradingPrice() {
+//        setTotalCurrValue(lastTradingPrice * getUnsoldQty());
         return lastTradingPrice;
     }
 
     public void setLastTradingPrice(double lastTradingPrice) {
-        this.lastTradingPrice = lastTradingPrice;
+        this.lastTradingPrice = CommonUtil.round(lastTradingPrice, 2);
+        setTotalCurrValue(lastTradingPrice * getUnsoldQty());
     }
 
     public double getBuyValue() {
@@ -139,7 +146,7 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setBuyValue(double buyValue) {
-        this.buyValue = buyValue;
+        this.buyValue = CommonUtil.round(buyValue, 2);
     }
 
     public double getSellValue() {
@@ -147,7 +154,7 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setSellValue(double sellValue) {
-        this.sellValue = sellValue;
+        this.sellValue = CommonUtil.round(sellValue, 2);
     }
 
     public double getStopLoss() {
@@ -187,7 +194,7 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setProfit(double profit) {
-        this.profit = profit;
+        this.profit = CommonUtil.round(profit, 2);
     }
 
     public double getPctReturn() {
@@ -195,7 +202,7 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setPctReturn(double pctReturn) {
-        this.pctReturn = pctReturn;
+        this.pctReturn = CommonUtil.round(pctReturn, 1);
     }
 
     public String getAction() {
@@ -236,7 +243,7 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setUnrealizedProfit(double unrealizedProfit) {
-        this.unrealizedProfit = unrealizedProfit;
+        this.unrealizedProfit = CommonUtil.round(unrealizedProfit, 2);
     }
 
     public double getUnrealizedProfitPct() {
@@ -244,7 +251,15 @@ public class TransactionSummary extends UserBase {
     }
 
     public void setUnrealizedProfitPct(double unrealizedProfitPct) {
-        this.unrealizedProfitPct = unrealizedProfitPct;
+        this.unrealizedProfitPct = CommonUtil.round(unrealizedProfitPct, 1);
+    }
+
+    public double getTotalCurrValue() {
+        return totalCurrValue;
+    }
+
+    public void setTotalCurrValue(double totalCurrValue) {
+        this.totalCurrValue = CommonUtil.round(totalCurrValue, 2);
     }
 
     @Override
@@ -272,6 +287,7 @@ public class TransactionSummary extends UserBase {
                 ", name='" + name + '\'' +
                 ", profit=" + profit +
                 ", pctReturn=" + pctReturn +
+                ", totalCurrValue=" + totalCurrValue +
                 ", action='" + action + '\'' +
                 ", positionStatus='" + positionStatus + '\'' +
                 ", transList=" + transList +

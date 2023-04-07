@@ -1,5 +1,6 @@
 package com.amit.journal.model;
 
+import com.amit.journal.util.CommonUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
@@ -39,7 +40,7 @@ public class Holding extends UserBase {
     }
 
     public void setTotalBuyValue(double totalBuyValue) {
-        this.totalBuyValue = totalBuyValue;
+        this.totalBuyValue = CommonUtil.round(totalBuyValue, 2);
     }
 
     public LocalDate getDate() {
@@ -55,7 +56,7 @@ public class Holding extends UserBase {
     }
 
     public void setTotalCurrValue(double totalCurrValue) {
-        this.totalCurrValue = totalCurrValue;
+        this.totalCurrValue = CommonUtil.round(totalCurrValue, 2);
     }
 
     public String getId() {
@@ -71,7 +72,7 @@ public class Holding extends UserBase {
     }
 
     public void setProfit(double profit) {
-        this.profit = profit;
+        this.profit = CommonUtil.round(profit, 2);
     }
 
     public double getProfitPct() {
@@ -79,7 +80,7 @@ public class Holding extends UserBase {
     }
 
     public void setProfitPct(double profitPct) {
-        this.profitPct = profitPct;
+        this.profitPct = CommonUtil.round(profitPct, 1);
     }
 
     public double getCash() {
@@ -87,7 +88,7 @@ public class Holding extends UserBase {
     }
 
     public void setCash(double cash) {
-        this.cash = cash;
+        this.cash = CommonUtil.round(cash, 2);
     }
 
     public double getTotalPortfolioValue() {
@@ -95,10 +96,10 @@ public class Holding extends UserBase {
     }
 
     public void setTotalPortfolioValue(double totalPortfolioValue) {
-        this.totalPortfolioValue = totalPortfolioValue;
+        this.totalPortfolioValue = CommonUtil.round(totalPortfolioValue, 2);
     }
     public void setTotalPortfolioValue() {
-        this.totalPortfolioValue = getTotalCurrValue() + getCash();
+        this.totalPortfolioValue = CommonUtil.round((getTotalCurrValue() + getCash()), 2);
     }
 
     public double getDayChange() {
@@ -114,7 +115,7 @@ public class Holding extends UserBase {
     }
 
     public void setDayChgPct(double dayChgPct) {
-        this.dayChgPct = dayChgPct;
+        this.dayChgPct = CommonUtil.round(dayChgPct, 1);
     }
 
     public String getDateStr() {

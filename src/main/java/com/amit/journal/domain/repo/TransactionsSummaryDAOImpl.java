@@ -7,6 +7,7 @@ import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -56,7 +57,7 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
     @Override
     public List<TransactionSummary> getSummaryRecords(String symbol, LocalDate startDate, LocalDate endDate) {
         Query query  = getUserQuery();
-
+//        query.with(Sort.by(new Sort.Order(Sort.Direction.DESC, DAOConstants.LAST_UPDATE_TIME)));
         if (!CommonUtil.isNullOrEmpty(symbol)) {
             query.addCriteria(where(Constants.SYMBOL).is(symbol));
         }

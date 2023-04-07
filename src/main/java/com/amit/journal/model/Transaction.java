@@ -3,6 +3,7 @@ package com.amit.journal.model;
 import java.time.LocalDate;
 
 import com.amit.journal.constants.Constants;
+import com.amit.journal.util.CommonUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
@@ -108,20 +109,20 @@ public class Transaction extends UserBase {
 		return price;
 	}
 	public void setPrice(double price) {
-		this.price = price;
+		this.price = CommonUtil.round(price, 2);
 	}
 	public double getTotalValue() {
 		return totalValue;
 	}
 	public void setTotalValue() {
-		this.totalValue = getQuantity() * getPrice();
+		this.totalValue = CommonUtil.round(getQuantity() * getPrice(), 2);
 	}
 
 	public double getLastTradingPrice() {
 		return lastTradingPrice;
 	}
 	public void setLastTradingPrice(double lastTradingPrice) {
-		this.lastTradingPrice = lastTradingPrice;
+		this.lastTradingPrice = CommonUtil.round(lastTradingPrice, 2);
 		setTotalValue();
 	}
 	public double getStopLoss() {

@@ -19,7 +19,7 @@ public class TransactionSummaryServiceUtil {
             transactionSummary.setEntryDate(transactionEntry.getTransactionDate());
             transactionSummary.setUnsoldQty(transactionEntry.getQuantity());
             transactionSummary.setSellDate(null);
-            transactionSummary.setPctReturn(Constants.HOLDING_UNSOLD_RETURN_PERCENT);
+            transactionSummary.setPctReturn(Constants.RETURN_PERCENT_UNSOLD_UNREALISED);
         } else {
             transactionSummary.setSellQuantity(Math.abs(transactionEntry.getQuantity()));
             transactionSummary.setSellPrice(transactionEntry.getPrice());
@@ -62,7 +62,7 @@ public class TransactionSummaryServiceUtil {
         double percentProfit = 0;
         if (sellPrice == 0d) {
             LOG.info("******* sellPrice: {}, buyPrice : {}, Setting percent profit to arbitrary number : {}", percentProfit);
-            percentProfit = Constants.HOLDING_UNSOLD_RETURN_PERCENT;
+            percentProfit = Constants.RETURN_PERCENT_UNSOLD_UNREALISED;
         } else {
             percentProfit = ((sellPrice - buyPrice) / buyPrice) * 100;
             LOG.info("******* sellPrice: {}, buyPrice : {}, percent profit temp is : {}", percentProfit);

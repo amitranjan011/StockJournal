@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -60,7 +61,9 @@ public class HoldingServiceImpl implements HoldingService {
 
     @Override
     public List<Holding> getAllHoldings() {
-        return holdingDAOImpl.findAll();
+        List<Holding> holdings = holdingDAOImpl.findAll();
+        holdings.sort(Comparator.comparing(Holding::getDate));
+        return holdings;
     }
 
     @Override
