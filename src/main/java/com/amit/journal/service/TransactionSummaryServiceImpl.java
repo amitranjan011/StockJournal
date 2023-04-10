@@ -192,6 +192,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             summary.setPctReturn(0);
             summary.setProfit(0);
             summary.setPositionStatus(Constants.POSITION_STATUS_CLOSED);
+            summary.setSellDate(LocalDate.now());
+
         }
         return summary;
     }

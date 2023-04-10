@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface HoldingService {
-    void saveFile(MultipartFile file, LocalDate holdingDate, double cash);
+    void saveFile(MultipartFile file, LocalDate holdingDate, double cash, double newFundAdded);
 
     List<Holding> getAllHoldings();
 

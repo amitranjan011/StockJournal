@@ -97,26 +97,31 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
         closedStockKPI.setAvgOverallGainPct(avgOverallClosedReturnPct);
         closedStockKPI.setAvgHoldDaysStock(avgHoldDaysClosed);
         return closedStockKPI;
-
     }
 
     private StockKPI getOpenPositionKPI(Supplier<Stream<TransactionSummary>> summaryStream) {
+        Predicate<TransactionSummary> openPosition = summary -> summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_OPEN);
         Comparator<TransactionSummary> comparator = Comparator.comparing(TransactionSummary::getUnrealizedProfitPct);
         Predicate<TransactionSummary> retLessThanUpperLimit = summary -> summary.getUnrealizedProfitPct() < Constants.RETURN_PERCENT_UNSOLD_UNREALISED;
-        Predicate<TransactionSummary> retPctGreaterZero = summary -> summary.getUnrealizedProfitPct() > 0;
+        Predicate<TransactionSummary> retPctGreaterZero = summary -> summary.getUnrealizedProfitPct() >= 0;
         Predicate<TransactionSummary> retPctLessZero = summary -> summary.getUnrealizedProfitPct() < 0;
-        TransactionSummary bestOpen = summaryStream.get().filter(retLessThanUpperLimit).max(comparator).orElse(null);
-        TransactionSummary worstOpen = summaryStream.get().filter(retLessThanUpperLimit).min(comparator).orElse(null);
+        TransactionSummary bestOpen = summaryStream.get().filter(openPosition.and(retLessThanUpperLimit)).max(comparator).orElse(null);
+        TransactionSummary worstOpen = summaryStream.get().filter(openPosition.and(retLessThanUpperLimit)).min(comparator).orElse(null);
 
-        List<TransactionSummary> winningOpen = summaryStream.get().filter(retLessThanUpperLimit.and(retPctGreaterZero)).collect(Collectors.toList());
-        List<TransactionSummary> losingOpen = summaryStream.get().filter(retPctLessZero).collect(Collectors.toList());
+        List<TransactionSummary> winningOpen = summaryStream.get().filter(openPosition.and(retLessThanUpperLimit).and(retPctGreaterZero)).collect(Collectors.toList());
+        List<TransactionSummary> losingOpen = summaryStream.get().filter(openPosition.and(retPctLessZero)).collect(Collectors.toList());
 
         double avgGainPctOpen = winningOpen.stream().mapToDouble(TransactionSummary::getUnrealizedProfitPct).summaryStatistics().getAverage();
         double avgLossPctOpen = losingOpen.stream().mapToDouble(TransactionSummary::getUnrealizedProfitPct).summaryStatistics().getAverage();
         double avgHoldDaysOpen = summaryStream.get().mapToInt(TransactionSummary::getDaysHeld).summaryStatistics().getAverage();
-        double avgOverallOpenReturnPct = summaryStream.get().filter(retLessThanUpperLimit)
-                .mapToDouble(TransactionSummary::getUnrealizedProfitPct).summaryStatistics().getAverage();
+//        double avgOverallOpenReturnPct = summaryStream.get().filter(retLessThanUpperLimit)
+//                .mapToDouble(TransactionSummary::getUnrealizedProfitPct).summaryStatistics().getAverage();
 
+        double totalBuyValueOpen = summaryStream.get().filter(retLessThanUpperLimit)
+                .mapToDouble(TransactionSummary::getBuyValue).summaryStatistics().getSum();
+        double totalCurrentValueOpen = summaryStream.get().filter(retLessThanUpperLimit)
+                .mapToDouble(TransactionSummary::getTotalCurrValue).summaryStatistics().getSum();
+        double avgOverallOpenReturnPct = (totalCurrentValueOpen - totalBuyValueOpen)/totalBuyValueOpen * 100;
 
         StockKPI openStockKPI = new StockKPI();
         openStockKPI.setBestStock(bestOpen);

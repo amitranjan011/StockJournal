@@ -198,7 +198,7 @@ public class TransactionSummary extends UserBase {
     }
 
     public double getPctReturn() {
-        return pctReturn;
+        return CommonUtil.round(pctReturn, 1);
     }
 
     public void setPctReturn(double pctReturn) {

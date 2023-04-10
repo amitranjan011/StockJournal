@@ -34,7 +34,7 @@ public class HoldingServiceImpl implements HoldingService {
     private HoldingDAOImpl holdingDAOImpl;
 
     @Override
-    public void saveFile(MultipartFile file, LocalDate holdingDate, double cash) {
+    public void saveFile(MultipartFile file, LocalDate holdingDate, double cash, double newFundAdded) {
         CSVHelper.saveFile(file, Constants.HOLDING_DIR);
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
 
@@ -44,7 +44,7 @@ public class HoldingServiceImpl implements HoldingService {
                     .build();
 
             List<HoldingItem> holdingItems = csvToBean.parse();
-            Holding holding = mapHoldingObject(holdingItems, holdingDate, cash);
+            Holding holding = mapHoldingObject(holdingItems, holdingDate, cash, newFundAdded);
             populateDayChange(holding);
 
             LOG.info("Successfully saved the holding file and populated holding objects for file : {}", file.getOriginalFilename());
@@ -76,11 +76,11 @@ public class HoldingServiceImpl implements HoldingService {
         return holding;
     }
 
-    private Holding mapHoldingObject(List<HoldingItem> holdingItems, LocalDate holdingDate, double cash) {
+    private Holding mapHoldingObject(List<HoldingItem> holdingItems, LocalDate holdingDate, double cash, double newFundAdded) {
         LocalDate holdingDateUpdated = LocalDate.now();
         Holding holding = new Holding();
         holding.setCash(cash);
-
+        holding.setNewFundAdded(newFundAdded);
         if (!CommonUtil.isObjectNullOrEmpty(holdingDate)) {
             holdingDateUpdated = holdingDate;
         }

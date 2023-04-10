@@ -23,6 +23,7 @@ public class Holding extends UserBase {
     private double dayChange;
     private double dayChgPct;
     private String dateStr;
+    private double newFundAdded;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -126,6 +127,14 @@ public class Holding extends UserBase {
         this.dateStr = dateStr;
     }
 
+    public double getNewFundAdded() {
+        return newFundAdded;
+    }
+
+    public void setNewFundAdded(double newFundAdded) {
+        this.newFundAdded = newFundAdded;
+    }
+
     @Override
     public String toString() {
         return "Holding{" +
@@ -141,6 +150,7 @@ public class Holding extends UserBase {
                 ", dayChgPct=" + dayChgPct +
                 ", dateStr='" + dateStr + '\'' +
                 ", date=" + date +
+                ", newFundAdded=" + newFundAdded +
                 '}';
     }
 }

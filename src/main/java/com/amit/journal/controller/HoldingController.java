@@ -40,7 +40,8 @@ public class HoldingController {
                     description = "File to be uploaded",
                     content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE)  // Won't work without OCTET_STREAM as the mediaType.
             ) @RequestPart(value = "file") MultipartFile file,
-            @RequestParam(required = false) double cash) { //@RequestParam("file") MultipartFile file) {
+            @RequestParam(required = false, defaultValue = "0") double cash,
+            @RequestParam(required = false, defaultValue = "0") double newFundAdded) { //@RequestParam("file") MultipartFile file) {
         String message = "";
 
         if (file.isEmpty()) {
@@ -48,7 +49,7 @@ public class HoldingController {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
         } else {
             try {
-                holdingService.saveFile(file, null, cash);
+                holdingService.saveFile(file, null, cash, newFundAdded);
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 return ResponseEntity.status(HttpStatus.OK).body(message);
 
@@ -73,7 +74,8 @@ public class HoldingController {
                     description = "File to be uploaded",
                     content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE)  // Won't work without OCTET_STREAM as the mediaType.
             ) @RequestPart(value = "file") MultipartFile file,
-            @RequestParam(required = false) double cash,
+            @RequestParam(required = false, defaultValue = "0") double cash,
+            @RequestParam(required = false, defaultValue = "0") double newFundAdded,
             @PathVariable @Parameter(description = "holdingDate(yyyy-MM-dd)") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate holdingDate) { //@RequestParam("file") MultipartFile file) {
         String message = "";
 
@@ -82,7 +84,7 @@ public class HoldingController {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
         } else {
             try {
-                holdingService.saveFile(file, holdingDate, cash);
+                holdingService.saveFile(file, holdingDate, cash, newFundAdded);
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 return ResponseEntity.status(HttpStatus.OK).body(message);
 
