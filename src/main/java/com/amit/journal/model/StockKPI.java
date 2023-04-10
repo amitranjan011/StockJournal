@@ -10,6 +10,9 @@ public class StockKPI {
     private double avgOverallGainPct;
     private double avgHoldDaysStock;
 
+    private double gainTimesPct;
+    private double lossTimesPct;
+
     public TransactionSummary getBestStock() {
         return bestStock;
     }
@@ -58,6 +61,22 @@ public class StockKPI {
         this.avgHoldDaysStock = CommonUtil.round(avgHoldDaysStock, 1);
     }
 
+    public double getGainTimesPct() {
+        return gainTimesPct;
+    }
+
+    public void setGainTimesPct(double gainTimesPct) {
+        this.gainTimesPct = gainTimesPct;
+    }
+
+    public double getLossTimesPct() {
+        return lossTimesPct;
+    }
+
+    public void setLossTimesPct(double lossTimesPct) {
+        this.lossTimesPct = lossTimesPct;
+    }
+
     @Override
     public String toString() {
         return "StockKPI{" +
@@ -67,6 +86,8 @@ public class StockKPI {
                 ", avgLossingPct=" + avgLossingPct +
                 ", avgOverallGainPct=" + avgOverallGainPct +
                 ", avgHoldDaysStock=" + avgHoldDaysStock +
+                ", gainTimesPct=" + gainTimesPct +
+                ", lossTimesPct=" + lossTimesPct +
                 '}';
     }
 }

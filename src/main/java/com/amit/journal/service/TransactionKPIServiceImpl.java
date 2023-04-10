@@ -4,6 +4,7 @@ import com.amit.journal.constants.Constants;
 import com.amit.journal.model.StockKPI;
 import com.amit.journal.model.TransactionKPI;
 import com.amit.journal.model.TransactionSummary;
+import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -86,8 +87,19 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
         double avgGainPctClosed = winningClosed.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
         double avgLossPctClosed = losingClosed.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
         double avgHoldDaysClosed = summaryStream.get().mapToInt(TransactionSummary::getDaysHeld).summaryStatistics().getAverage();
-        double avgOverallClosedReturnPct = summaryStream.get().filter(retLessThanUpperLimit)
-                .mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
+//        double avgOverallClosedReturnPct = summaryStream.get().filter(retLessThanUpperLimit)
+//                .mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
+
+        double gainTimesClosed = winningClosed.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getCount();
+        double lossTimesClosed = losingClosed.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getCount();
+        double gainTimesPctClosed = CommonUtil.round(gainTimesClosed/(gainTimesClosed + lossTimesClosed) * 100, 2);
+        double lossTimesPctClosed = CommonUtil.round(lossTimesClosed/(gainTimesClosed + lossTimesClosed) * 100, 2);
+
+        double totalBuyValueClosed = summaryStream.get().filter(retLessThanUpperLimit)
+                .mapToDouble(summary -> summary.getBuyPrice() * summary.getSellQuantity()).summaryStatistics().getSum();
+        double totalSellValueClosed = summaryStream.get().filter(retLessThanUpperLimit)
+                .mapToDouble(TransactionSummary::getSellValue).summaryStatistics().getSum();
+        double avgOverallClosedReturnPct = (totalSellValueClosed - totalBuyValueClosed)/totalBuyValueClosed * 100;
 
         StockKPI closedStockKPI = new StockKPI();
         closedStockKPI.setBestStock(bestClosed);
@@ -96,6 +108,8 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
         closedStockKPI.setAvgLossingPct(avgLossPctClosed);
         closedStockKPI.setAvgOverallGainPct(avgOverallClosedReturnPct);
         closedStockKPI.setAvgHoldDaysStock(avgHoldDaysClosed);
+        closedStockKPI.setGainTimesPct(gainTimesPctClosed);
+        closedStockKPI.setLossTimesPct(lossTimesPctClosed);
         return closedStockKPI;
     }
 
@@ -118,10 +132,15 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
 //                .mapToDouble(TransactionSummary::getUnrealizedProfitPct).summaryStatistics().getAverage();
 
         double totalBuyValueOpen = summaryStream.get().filter(retLessThanUpperLimit)
-                .mapToDouble(TransactionSummary::getBuyValue).summaryStatistics().getSum();
+                .mapToDouble(summary -> summary.getBuyPrice() * summary.getUnsoldQty()).summaryStatistics().getSum();
         double totalCurrentValueOpen = summaryStream.get().filter(retLessThanUpperLimit)
                 .mapToDouble(TransactionSummary::getTotalCurrValue).summaryStatistics().getSum();
         double avgOverallOpenReturnPct = (totalCurrentValueOpen - totalBuyValueOpen)/totalBuyValueOpen * 100;
+
+        double gainTimesOpen = winningOpen.stream().mapToDouble(TransactionSummary::getUnrealizedProfitPct).summaryStatistics().getCount();
+        double lossTimesOpen = losingOpen.stream().mapToDouble(TransactionSummary::getUnrealizedProfitPct).summaryStatistics().getCount();
+        double gainTimesPctOpen = CommonUtil.round(gainTimesOpen/(gainTimesOpen + lossTimesOpen) * 100, 2);
+        double lossTimesPctOpen = CommonUtil.round(lossTimesOpen/(gainTimesOpen + lossTimesOpen) * 100, 2);
 
         StockKPI openStockKPI = new StockKPI();
         openStockKPI.setBestStock(bestOpen);
@@ -130,6 +149,8 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
         openStockKPI.setAvgLossingPct(avgLossPctOpen);
         openStockKPI.setAvgOverallGainPct(avgOverallOpenReturnPct);
         openStockKPI.setAvgHoldDaysStock(avgHoldDaysOpen);
+        openStockKPI.setGainTimesPct(gainTimesPctOpen);
+        openStockKPI.setLossTimesPct(lossTimesPctOpen);
         return openStockKPI;
     }
 }
