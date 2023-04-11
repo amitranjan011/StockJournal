@@ -109,8 +109,8 @@ public class HoldingServiceImpl implements HoldingService {
         if (!CommonUtil.isObjectNullOrEmpty(holdingDB) && !holdingDB.getId().equals(holding.getId())) {
             double dayChange = holding.getTotalPortfolioValue() - holdingDB.getTotalPortfolioValue();
             double dayChgPct = (dayChange/holdingDB.getTotalPortfolioValue()) * 100;
-            holding.setDayChange(dayChange);
-            holding.setDayChgPct(dayChgPct);
+            holding.setDayChange(CommonUtil.round(dayChange, 2));
+            holding.setDayChgPct(CommonUtil.round(dayChgPct, 1));
         }
     }
 

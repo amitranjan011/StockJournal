@@ -108,7 +108,7 @@ public class Holding extends UserBase {
     }
 
     public void setDayChange(double dayChange) {
-        this.dayChange = dayChange;
+        this.dayChange = CommonUtil.round(dayChange, 2);
     }
 
     public double getDayChgPct() {
