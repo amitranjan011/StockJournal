@@ -46,6 +46,7 @@ public class TransactionSummaryServiceUtil {
             Period period = Period.between(tranSummaryDB.getEntryDate(), tranSummaryDB.getSellDate());
             tranSummaryDB.setDaysHeld(period.getDays());
         }
+        if (tranSummaryNew.getStopLoss() != 0) tranSummaryDB.setStopLoss(tranSummaryNew.getStopLoss());
         tranSummaryDB.getTransList().addAll(tranSummaryNew.getTransList());
         updateProfit(tranSummaryDB);
         return tranSummaryDB;
