@@ -10,4 +10,6 @@ public interface HoldingDAO {
     List<Holding> getHoldingsByDate(LocalDate startDate, LocalDate endDate);
 
     Holding getLatestHolding();
+
+    Holding getLatestWeeklyHolding();
 }

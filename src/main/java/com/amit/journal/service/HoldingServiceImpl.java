@@ -54,7 +54,7 @@ public class HoldingServiceImpl implements HoldingService {
             LOG.info("Successfully saved  the holding objects in db for file : {}", file.getOriginalFilename());
         } catch (Exception ex) {
             LOG.error("Exception while saving file for holding upload for file: {} : {}"
-                    ,file.getOriginalFilename(), ExceptionUtils.getStackTrace(ex));
+                    , file.getOriginalFilename(), ExceptionUtils.getStackTrace(ex));
             throw new RuntimeException(ex);
         }
     }
@@ -70,10 +70,24 @@ public class HoldingServiceImpl implements HoldingService {
     public List<Holding> getHoldingsByDateRange(LocalDate startDate, LocalDate endDate) {
         return holdingDAOImpl.getHoldingsByDate(startDate, endDate);
     }
+
     @Override
     public Holding getLatestHolding() {
         Holding holding = holdingDAOImpl.getLatestHolding();
         return holding;
+    }
+
+    @Override
+    public Holding getLatestWeeklyHolding() {
+        Holding holding = holdingDAOImpl.getLatestHolding();
+        return holding;
+    }
+
+    @Override
+    public List<Holding> getAllWeekHoldings() {
+        List<Holding> holdings = holdingDAOImpl.findAll(CollectionsName.HOLDING_WEEK);
+        holdings.sort(Comparator.comparing(Holding::getDate));
+        return holdings;
     }
 
     private Holding mapHoldingObject(List<HoldingItem> holdingItems, LocalDate holdingDate, double cash, double newFundAdded) {
@@ -93,7 +107,7 @@ public class HoldingServiceImpl implements HoldingService {
         double totalBuyVal = holdingStream.get().mapToDouble(holdingEntry -> holdingEntry.getQuantity() * holdingEntry.getAvgCost()).sum();
         double totalCurrVal = holdingStream.get().mapToDouble(holdingEntry -> holdingEntry.getQuantity() * holdingEntry.getLastPrice()).sum();
         double profit = totalCurrVal - totalBuyVal;
-        double profitPct = (profit/totalBuyVal) * 100;
+        double profitPct = (profit / totalBuyVal) * 100;
 
         holding.setTotalBuyValue(totalBuyVal);
         holding.setTotalCurrValue(totalCurrVal);
@@ -108,14 +122,24 @@ public class HoldingServiceImpl implements HoldingService {
         Holding holdingDB = getLatestHolding();
         if (!CommonUtil.isObjectNullOrEmpty(holdingDB) && !holdingDB.getId().equals(holding.getId())) {
             double dayChange = holding.getTotalPortfolioValue() - holdingDB.getTotalPortfolioValue();
-            double dayChgPct = (dayChange/holdingDB.getTotalPortfolioValue()) * 100;
+            double dayChgPct = (dayChange / holdingDB.getTotalPortfolioValue()) * 100;
             holding.setDayChange(CommonUtil.round(dayChange, 2));
             holding.setDayChgPct(CommonUtil.round(dayChgPct, 1));
         }
     }
 
-    private Holding getHoldingWeekObject(Holding holding) {
-        holding.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfWeek(holding.getDate())));
-        return holding;
+    private void populateWeekChange(Holding holding) {
+        Holding holdingDB = getLatestWeeklyHolding();
+        if (!CommonUtil.isObjectNullOrEmpty(holdingDB) && !holdingDB.getId().equals(holding.getId())) {
+            double weekChange = holding.getTotalPortfolioValue() - holdingDB.getTotalPortfolioValue();
+            double weekChgPct = (weekChange / holdingDB.getTotalPortfolioValue()) * 100;
+            holding.setDayChange(CommonUtil.round(weekChange, 2));
+            holding.setDayChgPct(CommonUtil.round(weekChgPct, 1));
+        }
+    }
+    private Holding getHoldingWeekObject(Holding holdingNew) {
+        populateWeekChange(holdingNew);
+        holdingNew.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfWeek(holdingNew.getDate())));
+        return holdingNew;
     }
 }

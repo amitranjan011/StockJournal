@@ -2,6 +2,7 @@ package com.amit.journal.controller;
 
 import com.amit.journal.model.Holding;
 import com.amit.journal.service.HoldingService;
+import com.amit.journal.service.HoldingServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,7 @@ import java.util.List;
 @CrossOrigin
 @Tag(name = "Holding API", description = "Holding API")
 public class HoldingController {
+    private static final Logger LOG = LogManager.getLogger(HoldingController.class);
     @Autowired
     private HoldingService holdingService;
 
@@ -54,7 +58,8 @@ public class HoldingController {
                 return ResponseEntity.status(HttpStatus.OK).body(message);
 
             } catch (Exception ex) {
-                System.err.println(ExceptionUtils.getStackTrace(ex));
+                LOG.error("Exception while saving file for holding upload for file: {} : {}"
+                        ,file.getOriginalFilename(), ExceptionUtils.getStackTrace(ex));
                 message = "Could not upload the file: " + file.getOriginalFilename() + "!";
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
             }
@@ -89,7 +94,9 @@ public class HoldingController {
                 return ResponseEntity.status(HttpStatus.OK).body(message);
 
             } catch (Exception ex) {
-                System.err.println(ExceptionUtils.getStackTrace(ex));
+                LOG.error("Exception while saving file for holding upload for file: {} : {}"
+                        ,file.getOriginalFilename()
+                        , ExceptionUtils.getStackTrace(ex));
                 message = "Could not upload the file: " + file.getOriginalFilename() + "!";
                 return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
             }
@@ -108,5 +115,11 @@ public class HoldingController {
             @PathVariable @Parameter(description = "startDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate
             , @PathVariable @Parameter(description = "endDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate) {
         return holdingService.getHoldingsByDateRange(startDate, endDate);
+    }
+
+    @GetMapping(path = "/week/holdings")
+    @ApiOperation(value = "Get holdings for an user")
+    public List<Holding> getWeekHoldings() {
+        return holdingService.getAllWeekHoldings();
     }
 }

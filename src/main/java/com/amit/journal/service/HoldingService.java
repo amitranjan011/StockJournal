@@ -14,4 +14,7 @@ public interface HoldingService {
     List<Holding> getHoldingsByDateRange(LocalDate startDate, LocalDate endDate);
 
     Holding getLatestHolding();
+
+    List<Holding> getAllWeekHoldings();
+    Holding getLatestWeeklyHolding();
 }
