@@ -4,6 +4,7 @@ import com.amit.journal.constants.Constants;
 import com.amit.journal.model.Transaction;
 import com.amit.journal.model.TransactionBasic;
 import com.amit.journal.model.TransactionSummary;
+import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,6 +48,9 @@ public class TransactionSummaryServiceUtil {
             tranSummaryDB.setDaysHeld(period.getDays());
         }
         if (tranSummaryNew.getStopLoss() != 0) tranSummaryDB.setStopLoss(tranSummaryNew.getStopLoss());
+        if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getStrategy())) tranSummaryDB.setStrategy(tranSummaryNew.getStrategy());
+        if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getComments())) tranSummaryDB.setComments(tranSummaryNew.getComments());
+        if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getAction())) tranSummaryDB.setAction(tranSummaryNew.getAction());
         tranSummaryDB.getTransList().addAll(tranSummaryNew.getTransList());
         updateProfit(tranSummaryDB);
         return tranSummaryDB;

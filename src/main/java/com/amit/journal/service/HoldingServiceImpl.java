@@ -119,7 +119,10 @@ public class HoldingServiceImpl implements HoldingService {
     }
 
     private void populateDayChange(Holding holding) {
-        Holding holdingDB = getLatestHolding();
+        LocalDate previousDay = LocalDate.now().minusDays(1);
+        String previousDayId = CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfDay(previousDay));
+//        Holding holdingDB = getLatestHolding();
+        Holding holdingDB = holdingDAOImpl.findByFieldId(Constants.ID, previousDayId, CollectionsName.HOLDING);
         if (!CommonUtil.isObjectNullOrEmpty(holdingDB) && !holdingDB.getId().equals(holding.getId())) {
             double dayChange = holding.getTotalPortfolioValue() - holdingDB.getTotalPortfolioValue();
             double dayChgPct = (dayChange / holdingDB.getTotalPortfolioValue()) * 100;
@@ -129,7 +132,10 @@ public class HoldingServiceImpl implements HoldingService {
     }
 
     private void populateWeekChange(Holding holding) {
-        Holding holdingDB = getLatestWeeklyHolding();
+
+        LocalDate minus7Day = LocalDate.now().minusDays(7);
+        String previousWeekId = CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfWeek(minus7Day));
+        Holding holdingDB = holdingDAOImpl.findByFieldId(Constants.ID, previousWeekId, CollectionsName.HOLDING_WEEK);
         if (!CommonUtil.isObjectNullOrEmpty(holdingDB) && !holdingDB.getId().equals(holding.getId())) {
             double weekChange = holding.getTotalPortfolioValue() - holdingDB.getTotalPortfolioValue();
             double weekChgPct = (weekChange / holdingDB.getTotalPortfolioValue()) * 100;
