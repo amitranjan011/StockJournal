@@ -19,4 +19,12 @@ public interface TransactionSummaryService {
     void updateAdditionalInfo();
 
     double getLatestPrice(String symbol);
+
+    void updateSummaryForSymbolMap(String symbol, String mappedSymbol);
+
+    void copySummaryToHistory();
+
+    void updateSummaryBatchId(String batchId);
+
+    void updateSummaryBatchId();
 }

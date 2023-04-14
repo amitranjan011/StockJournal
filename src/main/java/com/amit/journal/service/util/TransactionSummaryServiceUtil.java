@@ -7,7 +7,12 @@ import com.amit.journal.model.TransactionSummary;
 import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.Period;
 
 public class TransactionSummaryServiceUtil {
@@ -44,9 +49,10 @@ public class TransactionSummaryServiceUtil {
 
             if (tranSummaryDB.getUnsoldQty() == 0) tranSummaryDB.setPositionStatus(Constants.POSITION_STATUS_CLOSED);
 
-            Period period = Period.between(tranSummaryDB.getEntryDate(), tranSummaryDB.getSellDate());
-            tranSummaryDB.setDaysHeld(period.getDays());
+//            Period period = Period.between(tranSummaryDB.getEntryDate(), tranSummaryDB.getSellDate());
+            tranSummaryDB.setDaysHeld(getDays(tranSummaryDB));
         }
+        tranSummaryDB.setBatchId(tranSummaryNew.getBatchId());
         if (tranSummaryNew.getStopLoss() != 0) tranSummaryDB.setStopLoss(tranSummaryNew.getStopLoss());
         if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getStrategy())) tranSummaryDB.setStrategy(tranSummaryNew.getStrategy());
         if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getComments())) tranSummaryDB.setComments(tranSummaryNew.getComments());
@@ -54,6 +60,13 @@ public class TransactionSummaryServiceUtil {
         tranSummaryDB.getTransList().addAll(tranSummaryNew.getTransList());
         updateProfit(tranSummaryDB);
         return tranSummaryDB;
+    }
+    private static int getDays(TransactionSummary tranSummary) {
+        if (!CommonUtil.isObjectNullOrEmpty(tranSummary.getEntryDate()) && !CommonUtil.isObjectNullOrEmpty(tranSummary.getSellDate())) {
+            Period period = Period.between(tranSummary.getEntryDate(), tranSummary.getSellDate());
+            return period.getDays();
+        }
+        return 0;
     }
 
     public static void updateProfit(TransactionSummary tranSummaryDB) {
@@ -78,6 +91,7 @@ public class TransactionSummaryServiceUtil {
 
     public static TransactionSummary mapToTransactionSummary(Transaction transactionEntry) {
         TransactionSummary transactionSummary = new TransactionSummary();
+        transactionSummary.setBatchId(transactionEntry.getBatchId());
         transactionSummary.setName(transactionEntry.getName());
         transactionSummary.setSymbol(transactionEntry.getSymbol());
         transactionSummary.setInternalSymbol((transactionEntry.getSymbol() + Constants.BSE_EXTENSION));
@@ -107,5 +121,53 @@ public class TransactionSummaryServiceUtil {
         transactionBasic.setTransactionDate(transactionEntry.getTransactionDate());
         transactionBasic.setTransactionType(transactionEntry.getTransactionType());
         return transactionBasic;
+    }
+
+    public static double getLastTradingPrice(String symbol) {
+        double stockPrice = -1;
+        try {
+            Stock stock = YahooFinance.get(symbol);
+            if (stock != null) {
+                BigDecimal price = stock.getQuote().getPrice();
+                if (price != null) stockPrice = price.doubleValue();
+            }
+            LOG.info("Price for : {} is : {}", symbol, stockPrice);
+        } catch (IOException e) {
+            LOG.error("Exception fetching price for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(e));
+        }
+        return stockPrice;
+    }
+    public static TransactionSummary populateAdditionalData(TransactionSummary summary) {
+        double latestPrice = TransactionSummaryServiceUtil.getLastTradingPrice(summary.getInternalSymbol());
+        if (latestPrice < 0) {
+            updateSymbolForNSE(summary);
+            latestPrice = TransactionSummaryServiceUtil.getLastTradingPrice(summary.getInternalSymbol());
+        }
+        summary.setLastTradingPrice(latestPrice);
+        if (summary.getUnsoldQty() > 0) {
+            double unsoldLatestValue = summary.getUnsoldQty() * latestPrice;
+            double unsoldBuyValue = summary.getUnsoldQty() * summary.getBuyPrice();
+            double unrealizedProfit = unsoldLatestValue - unsoldBuyValue;
+            double unrealizedProfitPct = (unrealizedProfit/unsoldBuyValue) * 100;
+
+            summary.setUnrealizedProfit(unrealizedProfit);
+            summary.setUnrealizedProfitPct(unrealizedProfitPct);
+        } else {
+            summary.setUnrealizedProfit(0);
+            summary.setUnrealizedProfitPct(Constants.RETURN_PERCENT_UNSOLD_UNREALISED);
+        }
+        if (summary.getBuyQuantity() == 0) {
+            summary.setPctReturn(0);
+            summary.setProfit(0);
+            summary.setPositionStatus(Constants.POSITION_STATUS_CLOSED);
+            summary.setSellDate(LocalDate.now());
+
+        }
+        return summary;
+    }
+
+    private static void updateSymbolForNSE(TransactionSummary summary) {
+        summary.setInternalSymbol(summary.getSymbol() + Constants.NSE_EXTENSION);
     }
 }

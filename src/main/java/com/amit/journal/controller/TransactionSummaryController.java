@@ -60,4 +60,14 @@ public class TransactionSummaryController {
     public double getLatestPrice(@PathVariable String symbol) {
         return transactionSummaryService.getLatestPrice(symbol);
     }
+
+    @GetMapping(value = "/transactions/updateBatchId")
+    @ApiOperation(value = "update batchId of summary ")
+    @Operation(summary = "update batchId of summary  ",
+            description = "update batchId of summary "
+            , responses = { @ApiResponse(responseCode = "200", description = "successful operation")} )
+    public String getLatestPrice() {
+        transactionSummaryService.updateSummaryBatchId();
+        return "Success";
+    }
 }

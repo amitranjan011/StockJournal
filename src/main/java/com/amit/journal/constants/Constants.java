@@ -24,4 +24,6 @@ public interface Constants {
 //    double HOLDING_SOLD_UNREALIZED_RETURN_PERCENT = 99999999;
     String BSE_EXTENSION = ".BO";
     String NSE_EXTENSION = ".NS";
+
+    String SYMBOL_TO_MAP = "symbol";
 }

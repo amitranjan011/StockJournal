@@ -71,4 +71,15 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
     public List<TransactionSummary> getAllRecords() {
         return findAll();
     }
+
+    @Override
+    public List<TransactionSummary> findAllBySymbolsAndOpen(List<String> symbols) {
+        Query query  = getUserQuery();
+        query.addCriteria(where(Constants.SYMBOL).in(symbols));
+//        query.addCriteria(new Criteria().andOperator(
+//                where(Constants.POSITION_STATUS_key).is(Constants.POSITION_STATUS_OPEN), where(Constants.SYMBOL).in(symbols)));
+//        query.with(Sort.by(new Sort.Order(Sort.Direction.ASC, Constants.ENTRY_DATE)));
+        List<TransactionSummary> results = getQueryResult(query, getCollectionName());
+        return results;
+    }
 }

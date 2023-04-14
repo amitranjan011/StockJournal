@@ -11,4 +11,6 @@ public interface TransactionsSummaryDAO {
     List<TransactionSummary> getSummaryRecords(String symbol, LocalDate startDate, LocalDate endDate);
 
     List<TransactionSummary> getAllRecords();
+
+    List<TransactionSummary> findAllBySymbolsAndOpen(List<String> symbols);
 }

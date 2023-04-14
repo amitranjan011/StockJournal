@@ -40,6 +40,12 @@ public abstract class AbstractBaseDAO<T, PK extends Serializable> {
         query.addCriteria(getUserCriteria());
         return query;
     }
+
+    public Query getQuery() {
+        Query query = new Query();
+
+        return query;
+    }
     protected Criteria getUserCriteria() {
         return Criteria.where(Constants.USERID).is(UserContext.getUserId());
     }
@@ -71,6 +77,10 @@ public abstract class AbstractBaseDAO<T, PK extends Serializable> {
 
     public void delete(Query query, Class<?> entityClass, String collectionName) {
         getMongoTemplate().remove(query, entityClass, collectionName);
+    }
+
+    public void delete(T transientInstance, String collectionName) {
+        getMongoTemplate().remove(transientInstance, collectionName);
     }
 
     public void delete(Query query, String collectionName) {

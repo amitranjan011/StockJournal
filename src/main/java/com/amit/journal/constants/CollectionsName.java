@@ -8,4 +8,5 @@ public interface CollectionsName {
 	String  TRANSACTIONKPI_HISTORY = "TransactionKPI_History";
     String HOLDING = "Holding";
 	String HOLDING_WEEK = "Holding_Week";
+	String SYMBOL_MAP = "Symbol_Map";
 }

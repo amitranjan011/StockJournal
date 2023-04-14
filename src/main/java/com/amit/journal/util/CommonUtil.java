@@ -80,10 +80,15 @@ public class CommonUtil {
     }
 
     public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
+        try {
+        if (places < 0) places = 2;
 
         BigDecimal bd = new BigDecimal(Double.toString(value));
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
+        } catch (Exception e) {
+//            LOG.error("Exception rounding : {}, {}", value, CommonUtil.getStackTrace(e));
+            return 0;
+        }
     }
 }

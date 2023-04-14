@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -43,14 +44,17 @@ public class TransactionServiceImpl implements TransactionService {
             // convert `CsvToBean` object to list of users
             List<Transaction> transactions = csvToBean.parse();
 			LocalDate today = LocalDate.now();
+			String batchId = UUID.randomUUID().toString();
 			if (!CommonUtil.isObjectNullOrEmpty(transactionDate)) {
-				transactions.forEach(transaction -> transaction.setTransactionDate(transactionDate));
+				transactions.forEach(transaction -> setDateAndBatchId(transaction, transactionDate, batchId));
 			} else {
-				transactions.forEach(transaction -> transaction.setTransactionDate(today));
+				transactions.forEach(transaction -> setDateAndBatchId(transaction, today, batchId));
 			}
 			LOG.info("Successfully saved the transactions file and populated transactions objects for file : {}", file.getOriginalFilename());
 
 			transactionsDAO.insertMultiDocuments(transactions);
+			transactionSummaryService.copySummaryToHistory();
+			transactionSummaryService.updateSummaryBatchId(batchId);
 			transactionSummaryService.processTransactions(transactions);
 			LOG.info("Successfully saved the transactions objects for file : {}", file.getOriginalFilename());
         } catch (Exception ex) {
@@ -67,5 +71,10 @@ public class TransactionServiceImpl implements TransactionService {
 	@Override
 	public List<Transaction> getTransactions(String symbol, LocalDate startDate, LocalDate endDate) {
 		return transactionsDAO.getTransactions(symbol, startDate, endDate);
+	}
+
+	private void setDateAndBatchId(Transaction transaction, LocalDate transactionDate, String batchId) {
+		transaction.setTransactionDate(transactionDate);
+		transaction.setBatchId(batchId);
 	}
 }
