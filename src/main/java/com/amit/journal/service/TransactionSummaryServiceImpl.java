@@ -194,15 +194,15 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             }
             List<TransactionSummary> results = transactionsSummaryDAO.findAllBySymbolsAndOpen(symbols);
             if (!CommonUtil.isObjectNullOrEmpty(results) && results.size() > 0) {
-                Comparator<TransactionSummary> comparator = Comparator.comparing(TransactionSummary::getEntryDate);
-                Collections.sort(results, comparator);
+//                Comparator<TransactionSummary> comparator = Comparator.comparing(TransactionSummary::getEntryDate);
+//                Collections.sort(results, comparator);
 
                 TransactionSummary firstSummary = results.get(0);
                 List<TransactionSummary> others = results.subList(1, results.size());
-                others.forEach(summary -> TransactionSummaryServiceUtil.aggregateSummary(firstSummary, summary));
+                others.forEach(newSummary -> TransactionSummaryServiceUtil.aggregateSummary(newSummary, firstSummary));
                 updateSummaryToDB(firstSummary);
 
-                others.forEach(summary -> transactionsSummaryDAO.delete(summary, CollectionsName.TRANSACTIONS_SUMMARY));
+                //others.forEach(summary -> transactionsSummaryDAO.delete(summary, CollectionsName.TRANSACTIONS_SUMMARY));
 
             }
         } catch (Exception exception) {
