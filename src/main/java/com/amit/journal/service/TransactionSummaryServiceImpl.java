@@ -70,7 +70,9 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             String mappedSymbol = "";
             if (symbolMapping != null) {
                 mappedSymbol = symbolMapping.getMappedSymbol();
-                transactionSummaryDB = transactionsSummaryDAO.findBySymbolAndOpen(mappedSymbol);
+                if (CommonUtil.isNullOrEmpty(mappedSymbol)) {
+                    transactionSummaryDB = transactionsSummaryDAO.findBySymbolAndOpen(mappedSymbol);
+                }
             }
         }
         if (CommonUtil.isObjectNullOrEmpty(transactionSummaryDB)) {

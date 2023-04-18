@@ -39,7 +39,9 @@ public class Transaction extends UserBase {
 	
 	@CsvBindByName(column = "StopLoss")
 	private double stopLoss;
-	
+
+	@CsvBindByName(column = "P&L")
+	private double profit;
 	@CsvBindByName(column = "Strategy")
 	private String strategy;
 	
@@ -144,6 +146,18 @@ public class Transaction extends UserBase {
 		this.comments = comments;
 	}
 
+	public void setTotalValue(double totalValue) {
+		this.totalValue = totalValue;
+	}
+
+	public double getProfit() {
+		return profit;
+	}
+
+	public void setProfit(double profit) {
+		this.profit = profit;
+	}
+
 	@Override
 	public String toString() {
 		return "Transaction{" +
@@ -156,6 +170,7 @@ public class Transaction extends UserBase {
 				", lastTradingPrice=" + lastTradingPrice +
 				", totalValue=" + totalValue +
 				", stopLoss=" + stopLoss +
+				", profit=" + profit +
 				", strategy='" + strategy + '\'' +
 				", comments='" + comments + '\'' +
 				", name='" + name + '\'' +
