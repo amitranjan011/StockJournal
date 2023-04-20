@@ -204,7 +204,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 others.forEach(newSummary -> TransactionSummaryServiceUtil.aggregateSummary(newSummary, firstSummary));
                 updateSummaryToDB(firstSummary);
 
-                //others.forEach(summary -> transactionsSummaryDAO.delete(summary, CollectionsName.TRANSACTIONS_SUMMARY));
+                others.forEach(summary -> transactionsSummaryDAO.delete(summary, CollectionsName.TRANSACTIONS_SUMMARY));
 
             }
         } catch (Exception exception) {
