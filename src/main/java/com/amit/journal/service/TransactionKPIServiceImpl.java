@@ -75,14 +75,15 @@ public class TransactionKPIServiceImpl implements TransactionKPIService {
 
     private StockKPI getClosedPositionKPI(Supplier<Stream<TransactionSummary>> summaryStream) {
         Comparator<TransactionSummary> comparator = Comparator.comparing(TransactionSummary::getPctReturn);
+        Predicate<TransactionSummary> positionClosed = summary -> summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_CLOSED);
         Predicate<TransactionSummary> retLessThanUpperLimit = summary -> summary.getPctReturn() < Constants.RETURN_PERCENT_UNSOLD_UNREALISED;
         Predicate<TransactionSummary> retPctGreaterZero = summary -> summary.getPctReturn() > 0;
         Predicate<TransactionSummary> retPctLessZero = summary -> summary.getPctReturn() < 0;
-        TransactionSummary bestClosed = summaryStream.get().filter(retLessThanUpperLimit).max(comparator).orElse(null);
-        TransactionSummary worstClosed = summaryStream.get().filter(retLessThanUpperLimit).min(comparator).orElse(null);
+        TransactionSummary bestClosed = summaryStream.get().filter(positionClosed.and(retLessThanUpperLimit)).max(comparator).orElse(null);
+        TransactionSummary worstClosed = summaryStream.get().filter(positionClosed.and(retLessThanUpperLimit)).min(comparator).orElse(null);
 
-        List<TransactionSummary> winningClosed = summaryStream.get().filter(retLessThanUpperLimit.and(retPctGreaterZero)).collect(Collectors.toList());
-        List<TransactionSummary> losingClosed = summaryStream.get().filter(retPctLessZero).collect(Collectors.toList());
+        List<TransactionSummary> winningClosed = summaryStream.get().filter(positionClosed.and(retLessThanUpperLimit).and(retPctGreaterZero)).collect(Collectors.toList());
+        List<TransactionSummary> losingClosed = summaryStream.get().filter(positionClosed.and(retPctLessZero)).collect(Collectors.toList());
 
         double avgGainPctClosed = winningClosed.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
         double avgLossPctClosed = losingClosed.stream().mapToDouble(TransactionSummary::getPctReturn).summaryStatistics().getAverage();
