@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import yahoofinance.Stock;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -140,11 +141,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
 
     @Override
     public double getLatestPrice(String symbol) {
-        double price = TransactionSummaryServiceUtil.getLastTradingPrice(symbol + Constants.BSE_EXTENSION);
-        if (price < 0) {
-            price = TransactionSummaryServiceUtil.getLastTradingPrice(symbol + Constants.NSE_EXTENSION);
-        }
-        return price;
+        Stock stock = TransactionSummaryServiceUtil.getStockData(symbol);
+        return TransactionSummaryServiceUtil.getLatestStockPrice(stock, symbol);
     }
 
     private CompletableFuture<String> updateSummary(TransactionSummary summary) {

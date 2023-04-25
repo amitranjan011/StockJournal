@@ -1,6 +1,7 @@
 package com.amit.journal.service.util;
 
 import com.amit.journal.constants.Constants;
+import com.amit.journal.model.PEData;
 import com.amit.journal.model.Transaction;
 import com.amit.journal.model.TransactionBasic;
 import com.amit.journal.model.TransactionSummary;
@@ -46,10 +47,7 @@ public class TransactionSummaryServiceUtil {
             tranSummaryDB.setUnsoldQty(tranSummaryDB.getUnsoldQty() - tranSummaryNew.getSellQuantity());
             tranSummaryDB.setSellPrice(tranSummaryDB.getSellValue() / tranSummaryDB.getSellQuantity());
             tranSummaryDB.setSellDate(tranSummaryNew.getSellDate());
-
             if (tranSummaryDB.getUnsoldQty() == 0) tranSummaryDB.setPositionStatus(Constants.POSITION_STATUS_CLOSED);
-
-//            Period period = Period.between(tranSummaryDB.getEntryDate(), tranSummaryDB.getSellDate());
             tranSummaryDB.setDaysHeld(getDays(tranSummaryDB));
         }
         tranSummaryDB.setBatchId(tranSummaryNew.getBatchId());
@@ -79,11 +77,11 @@ public class TransactionSummaryServiceUtil {
         double profit = sellValue - buyVal;
         double percentProfit = 0;
         if (sellPrice == 0d) {
-            LOG.info("******* sellPrice: {}, buyPrice : {}, Setting percent profit to arbitrary number : {}", percentProfit);
+            LOG.info("******* symbol: {}, sellPrice: {}, buyPrice : {}, Setting percent profit to arbitrary number : {}",tranSummaryDB.getSymbol(), sellPrice, buyPrice, percentProfit);
             percentProfit = Constants.RETURN_PERCENT_UNSOLD_UNREALISED;
         } else {
             percentProfit = ((sellPrice - buyPrice) / buyPrice) * 100;
-            LOG.info("******* sellPrice: {}, buyPrice : {}, percent profit temp is : {}", percentProfit);
+            LOG.info("******* symbol: {}, sellPrice: {}, buyPrice : {}, percent profit temp is : {}",tranSummaryDB.getSymbol(), sellPrice, buyPrice, percentProfit);
         }
         tranSummaryDB.setPctReturn(percentProfit);
         tranSummaryDB.setProfit(profit);
@@ -123,30 +121,75 @@ public class TransactionSummaryServiceUtil {
         return transactionBasic;
     }
 
-    public static double getLastTradingPrice(String symbol) {
-        double stockPrice = -1;
+    public static Stock getStockData(String symbol) {
+        try {
+            Stock stock = getLastTradingData(symbol + Constants.NSE_EXTENSION);
+            if (stock == null) stock = getLastTradingData(symbol + Constants.BSE_EXTENSION);
+            return stock;
+        } catch (Exception e) {
+            LOG.error("Exception fetching price for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(e));
+        }
+        return null;
+    }
+
+    public static Stock getLastTradingData(String symbol) {
+//        double stockPrice = -1;
         try {
             Stock stock = YahooFinance.get(symbol);
             if (stock != null) {
-                BigDecimal price = stock.getQuote().getPrice();
-                if (price != null) stockPrice = price.doubleValue();
+//                stockPrice = stock.getQuote().getPrice();
+                return stock;
             }
-            LOG.info("Price for : {} is : {}", symbol, stockPrice);
+//            LOG.info("Price for : {} is : {}", symbol, stockPrice);
         } catch (IOException e) {
             LOG.error("Exception fetching price for : {}, exception : {}"
                     , symbol, CommonUtil.getStackTrace(e));
         }
+        return null;
+    }
+    public static double getLatestStockPrice(Stock stock, String symbol) {
+        if (stock == null) return -1;
+        double stockPrice = -1;
+        try {
+            BigDecimal price = stock.getQuote().getPrice();
+            if (price != null) stockPrice = price.doubleValue();
+            LOG.info("Price for : {} is : {}", symbol, stockPrice);
+        } catch (Exception ex) {
+            LOG.error("Exception fetching price for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(ex));
+        }
         return stockPrice;
     }
-    public static TransactionSummary populateAdditionalData(TransactionSummary summary) {
-        double latestPrice = TransactionSummaryServiceUtil.getLastTradingPrice(summary.getInternalSymbol());
-        if (latestPrice < 0) {
-            updateSymbolForNSE(summary);
-            latestPrice = TransactionSummaryServiceUtil.getLastTradingPrice(summary.getInternalSymbol());
+    public static double getLatestPe(Stock stock, String symbol) {
+        if (stock == null) return -1;
+        double stockPe = -1;
+        try {
+            BigDecimal pe = stock.getStats().getPe();
+            if (pe != null) stockPe = pe.doubleValue();
+            LOG.info("stockPe for : {} is : {}", symbol, stockPe);
+        } catch (Exception ex) {
+            LOG.error("Exception fetching stockPe for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(ex));
         }
-        summary.setLastTradingPrice(latestPrice);
+        return stockPe;
+    }
+
+    public static String getName(Stock stock, String symbol) {
+        try {
+            if (stock != null) {
+                return stock.getName();
+            }
+        } catch (Exception ex) {
+            LOG.error("Exception fetching stockPe for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(ex));
+        }
+        return "";
+    }
+    public static TransactionSummary populateAdditionalData(TransactionSummary summary) {
+        updatePriceAndPE(summary);
         if (summary.getUnsoldQty() > 0) {
-            double unsoldLatestValue = summary.getUnsoldQty() * latestPrice;
+            double unsoldLatestValue = summary.getUnsoldQty() * summary.getLastTradingPrice();
             double unsoldBuyValue = summary.getUnsoldQty() * summary.getBuyPrice();
             double unrealizedProfit = unsoldLatestValue - unsoldBuyValue;
             double unrealizedProfitPct = (unrealizedProfit/unsoldBuyValue) * 100;
@@ -166,6 +209,34 @@ public class TransactionSummaryServiceUtil {
         }
         return summary;
     }
+
+    private static void updatePriceAndPE(TransactionSummary summary) {
+        Stock stock = TransactionSummaryServiceUtil.getLastTradingData(summary.getInternalSymbol());
+        if (CommonUtil.isObjectNullOrEmpty(stock)/*latestPrice < 0*/) {
+            updateSymbolForNSE(summary);
+            stock = TransactionSummaryServiceUtil.getLastTradingData(summary.getInternalSymbol());
+        }
+        double latestPrice = TransactionSummaryServiceUtil.getLatestStockPrice(stock, summary.getSymbol());
+        summary.setLastTradingPrice(latestPrice);
+        updatePE(summary, stock);
+    }
+    private static void updatePE(TransactionSummary summary, Stock stock) {
+        double pe = getLatestPe(stock, stock.getSymbol());
+//        if (!CommonUtil.isObjectNullOrEmpty(stock) && !CommonUtil.isObjectNullOrEmpty(stock.getStats()) && !CommonUtil.isObjectNullOrEmpty(stock.getStats().getPe())) {
+//            pe = stock.getStats().getPe().doubleValue();
+//        }
+        if (summary.getPeData() == null) {
+            PEData peData = new PEData();
+            peData.setInitPe(pe);
+            peData.setCurrentPe(pe);
+            summary.setPeData(peData);
+        } else {
+            PEData peData = summary.getPeData();
+            if (peData.getInitPe() == 0) peData.setInitPe(pe);
+            if (peData.getCurrentPe() == 0) peData.setCurrentPe(pe);
+        }
+    }
+
 
     private static void updateSymbolForNSE(TransactionSummary summary) {
         summary.setInternalSymbol(summary.getSymbol() + Constants.NSE_EXTENSION);

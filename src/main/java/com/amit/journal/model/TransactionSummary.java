@@ -42,12 +42,12 @@ public class TransactionSummary extends UserBase {
     private String name;
     private double profit;
     private double pctReturn;
-
     private double totalCurrValue;
 
     private String action;
     private String positionStatus = "OPEN";
     private List<TransactionBasic> transList;
+    private PEData peData;
 
     public String getId() {
         return id;
@@ -262,6 +262,14 @@ public class TransactionSummary extends UserBase {
         this.totalCurrValue = CommonUtil.round(totalCurrValue, 2);
     }
 
+    public PEData getPeData() {
+        return peData;
+    }
+
+    public void setPeData(PEData peData) {
+        this.peData = peData;
+    }
+
     @Override
     public String toString() {
         return "TransactionSummary{" +
@@ -291,6 +299,7 @@ public class TransactionSummary extends UserBase {
                 ", action='" + action + '\'' +
                 ", positionStatus='" + positionStatus + '\'' +
                 ", transList=" + transList +
+                ", peData=" + peData +
                 '}';
     }
 }
