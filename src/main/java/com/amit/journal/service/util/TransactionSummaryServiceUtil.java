@@ -154,7 +154,7 @@ public class TransactionSummaryServiceUtil {
         try {
             BigDecimal price = stock.getQuote().getPrice();
             if (price != null) stockPrice = price.doubleValue();
-            LOG.info("Price for : {} is : {}", stock.getQuote(), stockPrice);
+            LOG.info("Price for : {} is : {}", symbol, stockPrice);
         } catch (Exception ex) {
             LOG.error("Exception fetching price for : {}, exception : {}"
                     , symbol, CommonUtil.getStackTrace(ex));
