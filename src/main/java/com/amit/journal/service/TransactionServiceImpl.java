@@ -65,7 +65,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	@Override
 	public List<Transaction> getTransactions() {
-		return transactionsDAO.findAll();
+		return transactionsDAO.getAllTransactions();
 	}
 
 	@Override

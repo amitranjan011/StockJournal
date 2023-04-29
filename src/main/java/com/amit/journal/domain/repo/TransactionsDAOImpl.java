@@ -3,6 +3,7 @@ package com.amit.journal.domain.repo;
 import com.amit.journal.constants.Constants;
 import com.amit.journal.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -44,6 +45,13 @@ public class TransactionsDAOImpl extends AbstractBaseDAO<Transaction, String> im
 		if (!CommonUtil.isObjectNullOrEmpty(startDate) && !CommonUtil.isObjectNullOrEmpty(endDate)) {
 			query.addCriteria(where(Constants.TRANSACTION_DATE).gte(startDate).lte(endDate));
 		}
+		return findAll(query);
+	}
+
+	@Override
+	public List<Transaction> getAllTransactions() {
+		Query query  = getUserQuery();
+		query.with(Sort.by(new Sort.Order(Sort.Direction.DESC, Constants.TRANSACTION_DATE)));
 		return findAll(query);
 	}
 }
