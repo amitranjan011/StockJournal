@@ -45,6 +45,7 @@ public class TransactionsDAOImpl extends AbstractBaseDAO<Transaction, String> im
 		if (!CommonUtil.isObjectNullOrEmpty(startDate) && !CommonUtil.isObjectNullOrEmpty(endDate)) {
 			query.addCriteria(where(Constants.TRANSACTION_DATE).gte(startDate).lte(endDate));
 		}
+		query.with(Sort.by(new Sort.Order(Sort.Direction.DESC, Constants.TRANSACTION_DATE)));
 		return findAll(query);
 	}
 

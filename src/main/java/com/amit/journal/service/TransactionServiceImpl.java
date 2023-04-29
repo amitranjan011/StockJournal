@@ -4,6 +4,7 @@ import com.amit.journal.constants.Constants;
 import com.amit.journal.csv.helper.CSVHelper;
 import com.amit.journal.domain.repo.TransactionsDAOImpl;
 import com.amit.journal.model.Transaction;
+import com.amit.journal.util.CSVUtil;
 import com.amit.journal.util.CommonUtil;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.time.LocalDate;
 import java.util.List;
@@ -77,4 +79,12 @@ public class TransactionServiceImpl implements TransactionService {
 		transaction.setTransactionDate(transactionDate);
 		transaction.setBatchId(batchId);
 	}
+
+	@Override
+	public void exportTransactions(PrintWriter writer, LocalDate startDate, LocalDate endDate) {
+		List<Transaction> transactions = transactionsDAO.getTransactions(null, startDate, endDate);
+		CSVUtil.writeTransactionsToCsv2(writer, transactions);
+	}
+
+
 }

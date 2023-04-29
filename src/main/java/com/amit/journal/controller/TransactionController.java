@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -38,6 +40,17 @@ public class TransactionController /* implements IControllerIface */ {
 			, @PathVariable @Parameter(description = "endDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate
 			, @PathVariable @Parameter(description = "startDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate) {
 		return transactionService.getTransactions(symbol, startDate, endDate);
+	}
+
+	@GetMapping(path = "/transactions/exportCsv/{startDate}/{endDate}")
+	@ApiOperation(value = "Export csv for transactions for an user and date range")
+	public void downloadTransactions(HttpServletResponse response,
+									 @PathVariable @Parameter(description = "endDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate endDate
+			, @PathVariable @Parameter(description = "startDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate) throws IOException {
+		response.setContentType("text/csv");
+		response.setHeader("Content-Disposition", "attachment; file=transactions.csv");
+		transactionService.exportTransactions(response.getWriter(), startDate, endDate);
+
 	}
 
 	@PostMapping(path = "/transactions/upload")

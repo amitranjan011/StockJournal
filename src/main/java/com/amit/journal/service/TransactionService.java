@@ -1,5 +1,6 @@
 package com.amit.journal.service;
 
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface TransactionService {
 	List<Transaction> getTransactions();
 
     List<Transaction> getTransactions(String symbol, LocalDate startDate, LocalDate endDate);
+
+	void exportTransactions(PrintWriter writer, LocalDate startDate, LocalDate endDate);
 }
