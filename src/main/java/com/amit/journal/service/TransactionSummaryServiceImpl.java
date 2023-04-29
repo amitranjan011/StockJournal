@@ -116,7 +116,6 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             summaryList.sort(comparatorByReturnPct);
             TransactionKPI transactionKPI = transactionKPIService.generateKPI(summaryList);
 
-//        populateLastTradingPrice(summaryList);
             holder.setSummaryList(summaryList);
             holder.setTransactionKPI(transactionKPI);
             holder.setUserId(UserContext.getUserId());

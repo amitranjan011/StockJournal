@@ -205,8 +205,8 @@ public class TransactionSummaryServiceUtil {
             summary.setProfit(0);
             summary.setPositionStatus(Constants.POSITION_STATUS_CLOSED);
             summary.setSellDate(LocalDate.now());
-
         }
+        setStopLossIndicator(summary);
         return summary;
     }
 
@@ -247,5 +247,16 @@ public class TransactionSummaryServiceUtil {
 
     private static void updateSymbolForNSE(TransactionSummary summary) {
         summary.setInternalSymbol(summary.getSymbol() + Constants.NSE_EXTENSION);
+    }
+
+    public static void setStopLossIndicator(TransactionSummary summary) {
+        if (summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_CLOSED)) return;
+        double ltp = summary.getLastTradingPrice();
+        double stopPct = Constants.STOPLOSS_THRESHOLD_PCT;
+        double thresholdPrice = ltp * stopPct;
+        double stopPrice = summary.getStopLoss();
+        if (ltp < stopPrice || thresholdPrice < stopPrice) {
+            summary.setStopLossAlert(true);
+        }
     }
 }

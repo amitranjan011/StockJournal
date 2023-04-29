@@ -49,6 +49,8 @@ public class TransactionSummary extends UserBase {
     private List<TransactionBasic> transList;
     private PEData peData;
 
+    private boolean stopLossAlert;
+
     public String getId() {
         return id;
     }
@@ -268,6 +270,14 @@ public class TransactionSummary extends UserBase {
 
     public void setPeData(PEData peData) {
         this.peData = peData;
+    }
+
+    public boolean isStopLossAlert() {
+        return stopLossAlert;
+    }
+
+    public void setStopLossAlert(boolean stopLossAlert) {
+        this.stopLossAlert = stopLossAlert;
     }
 
     @Override

@@ -26,4 +26,5 @@ public interface Constants {
     String NSE_EXTENSION = ".NS";
 
     String SYMBOL_TO_MAP = "symbol";
+    double STOPLOSS_THRESHOLD_PCT = .97;
 }
