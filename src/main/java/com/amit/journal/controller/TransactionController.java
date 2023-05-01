@@ -2,6 +2,7 @@ package com.amit.journal.controller;
 
 import com.amit.journal.model.Transaction;
 import com.amit.journal.service.TransactionService;
+import com.amit.journal.util.CommonUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,6 +50,7 @@ public class TransactionController /* implements IControllerIface */ {
 			, @PathVariable @Parameter(description = "startDate(yyyy-MM-dd)") @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate startDate) throws IOException {
 		response.setContentType("text/csv");
 		response.setHeader("Content-Disposition", "attachment; file=transactions.csv");
+		response.setHeader("fileName", "transactions_" +  CommonUtil.getTodayDateString() + ".csv");
 		transactionService.exportTransactions(response.getWriter(), startDate, endDate);
 
 	}
