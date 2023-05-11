@@ -51,7 +51,7 @@ public class TransactionSummaryServiceUtil {
             tranSummaryDB.setDaysHeld(getDays(tranSummaryDB));
         }
         tranSummaryDB.setBatchId(tranSummaryNew.getBatchId());
-        if (tranSummaryNew.getStopLoss() != 0) tranSummaryDB.setStopLoss(tranSummaryNew.getStopLoss());
+        if (tranSummaryNew.getStopLoss() > 0) tranSummaryDB.setStopLoss(tranSummaryNew.getStopLoss());
         if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getStrategy())) tranSummaryDB.setStrategy(tranSummaryNew.getStrategy());
         if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getComments())) tranSummaryDB.setComments(tranSummaryNew.getComments());
         if (!CommonUtil.isNullOrEmpty(tranSummaryNew.getAction())) tranSummaryDB.setAction(tranSummaryNew.getAction());
