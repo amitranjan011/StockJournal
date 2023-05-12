@@ -2,6 +2,7 @@ package com.amit.journal.service;
 
 import com.amit.journal.constants.CollectionsName;
 import com.amit.journal.constants.Constants;
+import com.amit.journal.domain.repo.TransactionsDAOImpl;
 import com.amit.journal.domain.repo.TransactionsSummaryDAOImpl;
 import com.amit.journal.interceptor.UserContext;
 import com.amit.journal.model.*;
@@ -26,6 +27,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     @Autowired
     private TransactionsSummaryDAOImpl transactionsSummaryDAO;
 
+    @Autowired
+    private TransactionsDAOImpl transactionsDAO;
     @Autowired
     private TransactionKPIService transactionKPIService;
     @Autowired
@@ -202,7 +205,6 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 updateSummaryToDB(firstSummary);
 
                 others.forEach(summary -> transactionsSummaryDAO.delete(summary, CollectionsName.TRANSACTIONS_SUMMARY));
-
             }
         } catch (Exception exception) {
             LOG.error("Exception updating data for mapped symbol : {}, {}", symbol, CommonUtil.getStackTrace(exception));
@@ -228,5 +230,31 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     public void updateSummaryBatchId() {
         String batchId = UUID.randomUUID().toString();
         updateSummaryBatchId(batchId);
+    }
+
+    @Override
+    public void resetSummaryData() {
+        try {
+            // delete data from summary and capture batchId
+            TransactionSummary summary = transactionsSummaryDAO.getSingleSummaryRecord(1);
+            transactionsSummaryDAO.deleteAllSummaryRecordsForUser();
+            //delete data from transactions with batchId captured in step1
+            transactionsDAO.deleteAllByBatchId(summary.getBatchId());
+            //copy data from history with batchId of latest record
+            TransactionSummary summaryHistory = transactionsSummaryDAO.getLatestRecordFromHistory();
+            copyTranSummaryFromHistory(summaryHistory.getBatchId());
+
+        } catch (Exception exception) {
+            LOG.error("Exception resetSummaryData mapped symbol : {}", CommonUtil.getStackTrace(exception));
+        }
+    }
+
+
+    public void copyTranSummaryFromHistory(String batchId) {
+        List<TransactionSummary> summariesHistory = transactionsSummaryDAO.findAllByFieldId(Constants.BATCH_ID, batchId, CollectionsName.TRANSACTIONS_SUMMARY_HISTORY);
+        summariesHistory.forEach(summary -> {
+            summary.setId(null);
+            transactionsSummaryDAO.persist(summary);
+        });
     }
 }

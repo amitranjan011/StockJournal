@@ -19,7 +19,8 @@ public interface Constants {
     String TRANSACTIONS_DIR = "transactions";
     String HOLDING_DIR = "holding";
     String HOLDING_DATE = "date";
-
+    String BATCH_ID = "batchId";
+    String LAST_UPDATE = "lastUpdate";
     double RETURN_PERCENT_UNSOLD_UNREALISED = 99999999;
 //    double HOLDING_SOLD_UNREALIZED_RETURN_PERCENT = 99999999;
     String BSE_EXTENSION = ".BO";

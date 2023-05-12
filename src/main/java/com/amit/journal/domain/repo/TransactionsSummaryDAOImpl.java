@@ -82,4 +82,29 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
         List<TransactionSummary> results = getQueryResult(query, getCollectionName());
         return results;
     }
+
+    @Override
+    public TransactionSummary getSingleSummaryRecord(int limit) {
+        Query query  = getUserQuery();
+        query.limit(limit);
+        List<TransactionSummary> list = findAll(query);
+        if (!CommonUtil.isObjectNullOrEmpty(list) && list.size() > 0) return list.get(0);
+        return null;
+    }
+    @Override
+    public void deleteAllSummaryRecordsForUser() {
+        Query query  = getUserQuery();
+        delete(query, getCollectionName());
+    }
+
+
+    @Override
+    public TransactionSummary getLatestRecordFromHistory() {
+        Query query  = getUserQuery();
+        query.with(Sort.by(new Sort.Order(Sort.Direction.DESC, Constants.LAST_UPDATE)));
+        query.limit(1);
+        List<TransactionSummary> list = findAll(query, getPersistentClassType(),CollectionsName.TRANSACTIONS_SUMMARY_HISTORY);
+        if (!CommonUtil.isObjectNullOrEmpty(list) && list.size() > 0) return list.get(0);
+        return null;
+    }
 }

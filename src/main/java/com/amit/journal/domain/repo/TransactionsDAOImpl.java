@@ -55,4 +55,11 @@ public class TransactionsDAOImpl extends AbstractBaseDAO<Transaction, String> im
 		query.with(Sort.by(new Sort.Order(Sort.Direction.DESC, Constants.TRANSACTION_DATE)));
 		return findAll(query);
 	}
+
+	@Override
+	public void deleteAllByBatchId(String batchId) {
+		Query query  = getUserQuery();
+		query.addCriteria(where(Constants.BATCH_ID).is(batchId));
+		delete(query, getCollectionName());
+	}
 }

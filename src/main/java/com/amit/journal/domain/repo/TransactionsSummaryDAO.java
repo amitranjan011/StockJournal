@@ -13,4 +13,10 @@ public interface TransactionsSummaryDAO {
     List<TransactionSummary> getAllRecords();
 
     List<TransactionSummary> findAllBySymbolsAndOpen(List<String> symbols);
+
+    TransactionSummary getSingleSummaryRecord(int limit);
+
+    void deleteAllSummaryRecordsForUser();
+
+    TransactionSummary getLatestRecordFromHistory();
 }

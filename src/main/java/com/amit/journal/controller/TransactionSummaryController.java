@@ -70,4 +70,14 @@ public class TransactionSummaryController {
         transactionSummaryService.updateSummaryBatchId();
         return "Success";
     }
+
+
+    @GetMapping(value = "/transactions/summary/resetLatestData")
+    @ApiOperation(value = "Reset latest summary records from summary history  ")
+    @Operation(summary = "Reset latest summary records from summary history ",
+            description = "Reset latest summary records from summary history"
+            , responses = { @ApiResponse(responseCode = "200", description = "successful operation")} )
+    public void resetSummaryData() {
+        transactionSummaryService.resetSummaryData();
+    }
 }

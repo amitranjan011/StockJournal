@@ -11,4 +11,6 @@ public interface TransactionsDAO {
     List<Transaction> getTransactions(String symbol, LocalDate startDate, LocalDate endDate);
 
     List<Transaction> getAllTransactions();
+
+    void deleteAllByBatchId(String batchId);
 }
