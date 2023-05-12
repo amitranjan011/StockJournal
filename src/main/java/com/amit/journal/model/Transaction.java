@@ -20,32 +20,32 @@ public class Transaction extends UserBase {
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	private LocalDate transactionDate;
 	
-	@CsvBindByName(column = "Instrument")
+	@CsvBindByName(column = "Instrument", required = true)
 	private String symbol;
 	
 	@CsvBindByName(column = "Type")
 	private String transactionType;
 	
-	@CsvBindByName(column = "Qty.")
+	@CsvBindByName(column = "Qty.", required = true)
 	private int quantity;
 	
-	@CsvBindByName(column = "Avg.")
+	@CsvBindByName(column = "Avg.", required = true)
 	private double price;
 	
-	@CsvBindByName(column = "LTP")
+	@CsvBindByName(column = "LTP", required = true)
 	private double lastTradingPrice;
 
 	private double totalValue;
 	
-	@CsvBindByName(column = "StopLoss")
+	@CsvBindByName(column = "StopLoss", required = true)
 	private double stopLoss;
 
-	@CsvBindByName(column = "P&L")
+	@CsvBindByName(column = "P&L", required = true)
 	private double profit;
-	@CsvBindByName(column = "Strategy")
+	@CsvBindByName(column = "Strategy", required = true)
 	private String strategy;
 	
-	@CsvBindByName(column = "Comments")
+	@CsvBindByName(column = "Comments", required = true)
 	private String comments;
 	
 	@CsvBindByName

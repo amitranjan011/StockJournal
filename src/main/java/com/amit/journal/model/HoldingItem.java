@@ -4,23 +4,23 @@ import com.amit.journal.util.CommonUtil;
 import com.opencsv.bean.CsvBindByName;
 
 public class HoldingItem {
-    @CsvBindByName(column = "Instrument")
+    @CsvBindByName(column = "Instrument", required = true)
     public String instrument;
-    @CsvBindByName(column = "Qty.")
+    @CsvBindByName(column = "Qty.", required = true)
     public int quantity;
-    @CsvBindByName(column = "Avg. cost")
+    @CsvBindByName(column = "Avg. cost", required = true)
     public double avgCost;
-    @CsvBindByName(column = "LTP")
+    @CsvBindByName(column = "LTP", required = true)
     public double lastPrice;
-    @CsvBindByName(column = "Cur. val")
+    @CsvBindByName(column = "Cur. val", required = true)
     public double currVal;
 
     public double buyVal;
-    @CsvBindByName(column = "P&L")
+    @CsvBindByName(column = "P&L", required = true)
     public double profit;
-    @CsvBindByName(column = "Net chg.")
+    @CsvBindByName(column = "Net chg.", required = true)
     public double netChgPct;
-    @CsvBindByName(column = "Day chg.")
+    @CsvBindByName(column = "Day chg.", required = true)
     public double symbolDayChangePct;
 
     public String getInstrument() {
