@@ -257,4 +257,30 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             transactionsSummaryDAO.persist(summary);
         });
     }
+
+    @Override
+    public void updateStopLoss(Transaction transaction) {
+        try {
+            if (CommonUtil.isObjectNullOrEmpty(transaction) || CommonUtil.isNullOrEmpty(transaction.getSymbol()))
+                throw new RuntimeException("transaction or symbol is null");
+            // 1. Get summary record
+                TransactionSummary tranSummary = transactionsSummaryDAO.findBySymbolAndOpen(transaction.getSymbol());
+            //2. Update record data
+            double stopLoss = transaction.getStopLoss();
+            String strategy = transaction.getStrategy();
+            String comments = transaction.getComments();
+            String action = transaction.getAction();
+            if (stopLoss > 0) tranSummary.setStopLoss(stopLoss);
+            if (!CommonUtil.isNullOrEmpty(strategy)) tranSummary.setStrategy(strategy);
+            if (!CommonUtil.isNullOrEmpty(comments)) tranSummary.setComments(comments);
+            if (!CommonUtil.isNullOrEmpty(comments)) tranSummary.setComments(comments);
+            if (!CommonUtil.isNullOrEmpty(action)) tranSummary.setAction(action);
+            //3. update in db
+            transactionsSummaryDAO.persist(tranSummary);
+        } catch (Exception exception) {
+            LOG.error("Exception updateStopLoss mapped symbol : {}", CommonUtil.getStackTrace(exception));
+        }
+
+
+    }
 }

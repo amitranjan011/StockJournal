@@ -30,4 +30,5 @@ public interface TransactionSummaryService {
 
     void resetSummaryData();
 
+    void updateStopLoss(Transaction transaction);
 }
