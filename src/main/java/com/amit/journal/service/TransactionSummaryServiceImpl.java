@@ -7,6 +7,7 @@ import com.amit.journal.domain.repo.TransactionsSummaryDAOImpl;
 import com.amit.journal.interceptor.UserContext;
 import com.amit.journal.model.*;
 import com.amit.journal.service.util.TransactionSummaryServiceUtil;
+import com.amit.journal.util.CSVUtil;
 import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import yahoofinance.Stock;
 
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -280,7 +282,15 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         } catch (Exception exception) {
             LOG.error("Exception updateStopLoss mapped symbol : {}", CommonUtil.getStackTrace(exception));
         }
+    }
 
-
+    @Override
+    public void exportTransactionSummary(PrintWriter writer, String type) {
+        try {
+            List<TransactionSummary> list = transactionsSummaryDAO.getSummaryRecordsByType(type);
+            CSVUtil.writeTransactionSummaryToCsv(writer, list);
+        } catch (Exception exception) {
+            LOG.error("Exception exporting summary list for position status : {}, {}", type, CommonUtil.getStackTrace(exception));
+        }
     }
 }

@@ -107,4 +107,11 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
         if (!CommonUtil.isObjectNullOrEmpty(list) && list.size() > 0) return list.get(0);
         return null;
     }
+
+    @Override
+    public List<TransactionSummary> getSummaryRecordsByType(String positionStatus) {
+        Query query  = getUserQuery();
+        query.addCriteria(new Criteria().andOperator(where(Constants.POSITION_STATUS_key).is(positionStatus)));
+        return findAll(query);
+    }
 }

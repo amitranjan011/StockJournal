@@ -19,4 +19,6 @@ public interface TransactionsSummaryDAO {
     void deleteAllSummaryRecordsForUser();
 
     TransactionSummary getLatestRecordFromHistory();
+
+    List<TransactionSummary> getSummaryRecordsByType(String positionStatus);
 }

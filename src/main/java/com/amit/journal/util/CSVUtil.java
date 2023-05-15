@@ -1,6 +1,7 @@
 package com.amit.journal.util;
 
 import com.amit.journal.model.Transaction;
+import com.amit.journal.model.TransactionSummary;
 import com.amit.journal.service.TransactionServiceImpl;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
@@ -60,6 +61,22 @@ public class CSVUtil {
         } catch (Exception e) {
             LOG.error("Exception while writing file for transactions : {}", ExceptionUtils.getStackTrace(e));
         }
+    }
 
+    public static void writeTransactionSummaryToCsv(PrintWriter writer, List<TransactionSummary> summaries) {
+        try {
+            StatefulBeanToCsv<TransactionSummary> csvWriter =
+                    new StatefulBeanToCsvBuilder<TransactionSummary>
+                            (writer)
+                            .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                            .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                            .withOrderedResults(false).build();
+
+
+            csvWriter.write(summaries);
+            LOG.info("Write CSV using BeanToCsv successfully!");
+        } catch (Exception e) {
+            LOG.error("Exception while writing file for TransactionSummary : {}", ExceptionUtils.getStackTrace(e));
+        }
     }
 }

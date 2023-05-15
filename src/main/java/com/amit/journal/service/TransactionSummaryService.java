@@ -4,6 +4,7 @@ import com.amit.journal.model.Transaction;
 import com.amit.journal.model.TransactionSummary;
 import com.amit.journal.model.TransactionSummaryKPIHolder;
 
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface TransactionSummaryService {
     void resetSummaryData();
 
     void updateStopLoss(Transaction transaction);
+
+    void exportTransactionSummary(PrintWriter writer, String type);
 }

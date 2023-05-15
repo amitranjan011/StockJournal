@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDate;
 
 @RestController
@@ -105,5 +107,18 @@ public class TransactionSummaryController {
             message = "Exception updating stoploss";
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
         }
+    }
+
+
+    @GetMapping(path = "/transactions/summary/exportCsv/{type}")
+    @ApiOperation(value = "Export csv for transactions for an user and date range")
+    public void downloadTransactions(HttpServletResponse response,
+                                     @PathVariable @Parameter(description = "Type of position") String type) throws IOException {
+        String name = type + " -transactionsummary-" + CommonUtil.getTodayDateString() + ".csv";
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; file=" + name);
+        response.setHeader("fileName", name);
+        transactionSummaryService.exportTransactionSummary(response.getWriter(), type);
+
     }
 }
