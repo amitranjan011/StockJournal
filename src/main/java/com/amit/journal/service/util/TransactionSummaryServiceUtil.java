@@ -123,8 +123,8 @@ public class TransactionSummaryServiceUtil {
 
     public static Stock getStockData(String symbol) {
         try {
-            Stock stock = getLastTradingData(symbol + Constants.NSE_EXTENSION);
-            if (CommonUtil.isObjectNullOrEmpty(stock)) stock = getLastTradingData(symbol + Constants.BSE_EXTENSION);
+            Stock stock = getLastTradingData(symbol + Constants.BSE_EXTENSION);
+            if (CommonUtil.isObjectNullOrEmpty(stock)) stock = getLastTradingData(symbol + Constants.NSE_EXTENSION);
             return stock;
         } catch (Exception e) {
             LOG.error("Exception fetching price for : {}, exception : {}"
@@ -134,14 +134,11 @@ public class TransactionSummaryServiceUtil {
     }
 
     public static Stock getLastTradingData(String symbol) {
-//        double stockPrice = -1;
         try {
             Stock stock = YahooFinance.get(symbol);
             if (stock != null) {
-//                stockPrice = stock.getQuote().getPrice();
                 return stock;
             }
-//            LOG.info("Price for : {} is : {}", symbol, stockPrice);
         } catch (IOException e) {
             LOG.error("Exception fetching price for : {}, exception : {}"
                     , symbol, CommonUtil.getStackTrace(e));
@@ -212,12 +209,11 @@ public class TransactionSummaryServiceUtil {
 
     private static void updatePriceAndPE(TransactionSummary summary) {
         Stock stock = TransactionSummaryServiceUtil.getLastTradingData(summary.getInternalSymbol());
-//        Stock stock = TransactionSummaryServiceUtil.getStockData(summary.getSymbol());
+
         if (CommonUtil.isObjectNullOrEmpty(stock)/*latestPrice < 0*/) {
             LOG.error("Exception fetching stock data for : {}", summary.getSymbol());
             stock = TransactionSummaryServiceUtil.getStockData(summary.getSymbol());
-//            updateSymbolForNSE(summary);
-//            stock = TransactionSummaryServiceUtil.getLastTradingData(summary.getInternalSymbol());
+
         }
         if (!CommonUtil.isObjectNullOrEmpty(stock)) {
             double latestPrice = TransactionSummaryServiceUtil.getLatestStockPrice(stock, summary.getSymbol());
@@ -225,13 +221,10 @@ public class TransactionSummaryServiceUtil {
             summary.setInternalSymbol(stock.getSymbol());
             updatePE(summary, stock);
         }
-
     }
     private static void updatePE(TransactionSummary summary, Stock stock) {
         double pe = getLatestPe(stock, summary.getSymbol());
-//        if (!CommonUtil.isObjectNullOrEmpty(stock) && !CommonUtil.isObjectNullOrEmpty(stock.getStats()) && !CommonUtil.isObjectNullOrEmpty(stock.getStats().getPe())) {
-//            pe = stock.getStats().getPe().doubleValue();
-//        }
+
         if (summary.getPeData() == null) {
             PEData peData = new PEData();
             peData.setInitPe(pe);
