@@ -123,8 +123,8 @@ public class TransactionSummaryServiceUtil {
 
     public static Stock getStockData(String symbol) {
         try {
-            Stock stock = getLastTradingData(symbol + Constants.BSE_EXTENSION);
-            if (CommonUtil.isObjectNullOrEmpty(stock)) stock = getLastTradingData(symbol + Constants.NSE_EXTENSION);
+            Stock stock = getLastTradingData(symbol + Constants.NSE_EXTENSION);
+            if (CommonUtil.isObjectNullOrEmpty(stock)) stock = getLastTradingData(symbol + Constants.BSE_EXTENSION);
             return stock;
         } catch (Exception e) {
             LOG.error("Exception fetching price for : {}, exception : {}"
@@ -243,7 +243,10 @@ public class TransactionSummaryServiceUtil {
     }
 
     public static void setStopLossIndicator(TransactionSummary summary) {
-        if (summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_CLOSED)) return;
+        if (summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_CLOSED)) {
+            summary.setStopLossAlert(false);
+            return;
+        }
         double ltp = summary.getLastTradingPrice();
         double stopPct = Constants.STOPLOSS_THRESHOLD_PCT;
         double thresholdPrice = ltp * stopPct;
