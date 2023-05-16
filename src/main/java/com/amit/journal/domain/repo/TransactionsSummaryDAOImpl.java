@@ -114,4 +114,11 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
         query.addCriteria(new Criteria().andOperator(where(Constants.POSITION_STATUS_key).is(positionStatus)));
         return findAll(query);
     }
+
+    @Override
+    public void deleteAllSummaryRecordsByBatchId(String batchId) {
+        Query query  = getUserQuery();
+        query.addCriteria(new Criteria().andOperator(where(Constants.BATCH_ID).is(batchId)));
+        delete(query, getCollectionName());
+    }
 }

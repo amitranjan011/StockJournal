@@ -21,4 +21,6 @@ public interface TransactionsSummaryDAO {
     TransactionSummary getLatestRecordFromHistory();
 
     List<TransactionSummary> getSummaryRecordsByType(String positionStatus);
+
+    void deleteAllSummaryRecordsByBatchId(String batchId);
 }

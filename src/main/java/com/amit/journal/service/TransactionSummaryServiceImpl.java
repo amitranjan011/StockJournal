@@ -241,16 +241,21 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             TransactionSummary summary = transactionsSummaryDAO.getSingleSummaryRecord(1);
             transactionsSummaryDAO.deleteAllSummaryRecordsForUser();
             //delete data from transactions with batchId captured in step1
-            transactionsDAO.deleteAllByBatchId(summary.getBatchId());
+            if (!CommonUtil.isObjectNullOrEmpty(summary)) {
+                transactionsDAO.deleteAllByBatchId(summary.getBatchId());
+            }
             //copy data from history with batchId of latest record
             TransactionSummary summaryHistory = transactionsSummaryDAO.getLatestRecordFromHistory();
-            copyTranSummaryFromHistory(summaryHistory.getBatchId());
+            if (!CommonUtil.isObjectNullOrEmpty(summaryHistory)) {
+                copyTranSummaryFromHistory(summaryHistory.getBatchId());
 
+                //delete this batchid from history
+                transactionsSummaryDAO.deleteAllSummaryRecordsByBatchId(summaryHistory.getBatchId());
+            }
         } catch (Exception exception) {
             LOG.error("Exception resetSummaryData mapped symbol : {}", CommonUtil.getStackTrace(exception));
         }
     }
-
 
     public void copyTranSummaryFromHistory(String batchId) {
         List<TransactionSummary> summariesHistory = transactionsSummaryDAO.findAllByFieldId(Constants.BATCH_ID, batchId, CollectionsName.TRANSACTIONS_SUMMARY_HISTORY);
