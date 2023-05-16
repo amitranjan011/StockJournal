@@ -61,8 +61,7 @@ public class HoldingServiceImpl implements HoldingService {
 
     @Override
     public List<Holding> getAllHoldings() {
-        List<Holding> holdings = holdingDAOImpl.findAll();
-        holdings.sort(Comparator.comparing(Holding::getDate));
+        List<Holding> holdings = holdingDAOImpl.getLImitedHoldings(25);
         return holdings;
     }
 
@@ -85,8 +84,7 @@ public class HoldingServiceImpl implements HoldingService {
 
     @Override
     public List<Holding> getAllWeekHoldings() {
-        List<Holding> holdings = holdingDAOImpl.findAll(CollectionsName.HOLDING_WEEK);
-        holdings.sort(Comparator.comparing(Holding::getDate));
+        List<Holding> holdings = holdingDAOImpl.getAllWeeklyHoldings();
         return holdings;
     }
 

@@ -67,4 +67,26 @@ public class HoldingDAOImpl extends AbstractBaseDAO<Holding, String> implements 
         Holding holding = findOneByQuery(query, getPersistentClassType(), CollectionsName.HOLDING_WEEK);
         return holding;
     }
+
+    @Override
+    public List<Holding> getAllHoldings() {
+        Query query = getUserQuery();
+        query.with(Sort.by(Sort.Direction.DESC, Constants.HOLDING_DATE));
+        return findAll(query);
+    }
+
+    @Override
+    public List<Holding> getAllWeeklyHoldings() {
+        Query query = getUserQuery();
+        query.with(Sort.by(Sort.Direction.DESC, Constants.HOLDING_DATE));
+        return findAll(query, getPersistentClassType(), CollectionsName.HOLDING_WEEK);
+    }
+
+    @Override
+    public List<Holding> getLImitedHoldings(int number) {
+        Query query = getUserQuery();
+        query.limit(number);
+        query.with(Sort.by(Sort.Direction.DESC, Constants.HOLDING_DATE));
+        return findAll(query);
+    }
 }

@@ -117,8 +117,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         try {
             TransactionSummaryKPIHolder holder = new TransactionSummaryKPIHolder();
             List<TransactionSummary> summaryList = getSummaryRecords(symbol, startDate, endDate);
-            Comparator<TransactionSummary> comparatorByReturnPct = Comparator.comparing(TransactionSummary::getUnrealizedProfitPct).thenComparing(TransactionSummary::getPctReturn);
-            summaryList.sort(comparatorByReturnPct);
+//            Comparator<TransactionSummary> comparatorByReturnPct = Comparator.comparing(TransactionSummary::getUnrealizedProfitPct).thenComparing(TransactionSummary::getPctReturn);
+//            summaryList.sort(comparatorByReturnPct);
             TransactionKPI transactionKPI = transactionKPIService.generateKPI(summaryList);
 
             holder.setSummaryList(summaryList);

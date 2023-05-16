@@ -12,4 +12,10 @@ public interface HoldingDAO {
     Holding getLatestHolding();
 
     Holding getLatestWeeklyHolding();
+
+    List<Holding> getAllHoldings();
+
+    List<Holding> getAllWeeklyHoldings();
+
+    List<Holding> getLImitedHoldings(int number);
 }

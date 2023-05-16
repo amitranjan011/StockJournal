@@ -4,6 +4,7 @@ import com.amit.journal.constants.CollectionsName;
 import com.amit.journal.constants.Constants;
 import com.amit.journal.model.TransactionSummary;
 import com.amit.journal.util.CommonUtil;
+import com.amit.journal.constants.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class TransactionsSummaryDAOImpl extends AbstractBaseDAO<TransactionSumma
     @Override
     public List<TransactionSummary> getSummaryRecords(String symbol, LocalDate startDate, LocalDate endDate) {
         Query query  = getUserQuery();
-//        query.with(Sort.by(new Sort.Order(Sort.Direction.DESC, DAOConstants.LAST_UPDATE_TIME)));
+        query.with(Sort.by(new Sort.Order(Sort.Direction.DESC, Constants.POSITION_STATUS_key)));
         if (!CommonUtil.isNullOrEmpty(symbol)) {
             query.addCriteria(where(Constants.SYMBOL).is(symbol));
         }
