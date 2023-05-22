@@ -253,6 +253,8 @@ public class TransactionSummaryServiceUtil {
         double stopPrice = summary.getStopLoss();
         if (ltp < stopPrice || thresholdPrice < stopPrice) {
             summary.setStopLossAlert(true);
+        } else {
+            summary.setStopLossAlert(false);
         }
     }
 }

@@ -293,6 +293,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     public void exportTransactionSummary(PrintWriter writer, String type) {
         try {
             List<TransactionSummary> list = transactionsSummaryDAO.getSummaryRecordsByType(type);
+            list.forEach(summary -> summary.setPeData(null));
             CSVUtil.writeTransactionSummaryToCsv(writer, list);
         } catch (Exception exception) {
             LOG.error("Exception exporting summary list for position status : {}, {}", type, CommonUtil.getStackTrace(exception));
