@@ -91,4 +91,13 @@ public class CommonUtil {
             return 0;
         }
     }
+
+    public static double getDouble(String number) {
+        try {
+            return Double.parseDouble(number);
+        }  catch (Exception e) {
+          LOG.error("Exception converting : {}, {}", number, CommonUtil.getStackTrace(e));
+            return 0;
+        }
+    }
 }

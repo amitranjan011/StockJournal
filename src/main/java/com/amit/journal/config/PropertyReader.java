@@ -1,5 +1,6 @@
 package com.amit.journal.config;
 
+import com.amit.journal.service.TransactionSummaryService;
 import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 
@@ -17,10 +19,22 @@ import javax.annotation.PostConstruct;
 @Order(1)
 public class PropertyReader implements InitializingBean {
 	private static final Logger LOG = LogManager.getLogger(PropertyReader.class);
+
 	private static PropertyReader instance;
 	@Autowired
 	private Environment environment;
 
+	@Autowired
+	private TransactionSummaryService transactionSummaryService;
+
+	@Autowired
+	private RestTemplate restTemplate;
+	public TransactionSummaryService getTransactionSummaryService() {
+		return transactionSummaryService;
+	}
+	public RestTemplate getRestTemplate() {
+		return restTemplate;
+	}
 	@PostConstruct
 	public void initialize() throws Exception {
 		LOG.info("******************** Initialized*******************");

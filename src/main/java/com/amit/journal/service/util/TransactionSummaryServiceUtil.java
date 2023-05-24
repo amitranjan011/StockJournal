@@ -1,13 +1,12 @@
 package com.amit.journal.service.util;
 
+import com.amit.journal.config.PropertyReader;
 import com.amit.journal.constants.Constants;
-import com.amit.journal.model.PEData;
-import com.amit.journal.model.Transaction;
-import com.amit.journal.model.TransactionBasic;
-import com.amit.journal.model.TransactionSummary;
+import com.amit.journal.model.*;
 import com.amit.journal.util.CommonUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.ResponseEntity;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 
@@ -132,13 +131,31 @@ public class TransactionSummaryServiceUtil {
         }
         return null;
     }
-
+    public static StockData getStockDataOwn(String symbol) {
+        try {
+            StockData stock = getQuoteInternal(symbol + Constants.NSE_EXTENSION);
+            if (CommonUtil.isObjectNullOrEmpty(stock)) stock = getQuoteInternal(symbol + Constants.BSE_EXTENSION);
+            return stock;
+        } catch (Exception e) {
+            LOG.error("Exception fetching price for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(e));
+        }
+        return null;
+    }
+    public static StockData getLastTradingDataOwn(String intlSymbol) {
+        try {
+            StockData stock = getQuoteInternal(intlSymbol);
+            return stock;
+        } catch (Exception e) {
+            LOG.error("Exception fetching price for : {}, exception : {}"
+                    , intlSymbol, CommonUtil.getStackTrace(e));
+        }
+        return null;
+    }
     public static Stock getLastTradingData(String symbol) {
         try {
             Stock stock = YahooFinance.get(symbol);
-            if (stock != null) {
-                return stock;
-            }
+            return stock;
         } catch (IOException e) {
             LOG.error("Exception fetching price for : {}, exception : {}"
                     , symbol, CommonUtil.getStackTrace(e));
@@ -184,7 +201,7 @@ public class TransactionSummaryServiceUtil {
         return "";
     }
     public static TransactionSummary populateAdditionalData(TransactionSummary summary) {
-        updatePriceAndPE(summary);
+        updatePriceAndPEOwn(summary);
         if (summary.getUnsoldQty() > 0) {
             double unsoldLatestValue = summary.getUnsoldQty() * summary.getLastTradingPrice();
             double unsoldBuyValue = summary.getUnsoldQty() * summary.getBuyPrice();
@@ -207,8 +224,22 @@ public class TransactionSummaryServiceUtil {
         return summary;
     }
 
+    private static void updatePriceAndPEOwn(TransactionSummary summary) {
+        StockData stock = getLastTradingDataOwn(summary.getInternalSymbol());
+
+        if (CommonUtil.isObjectNullOrEmpty(stock)/*latestPrice < 0*/) {
+            LOG.error("Exception fetching stock data for : {}", summary.getSymbol());
+            stock = TransactionSummaryServiceUtil.getStockDataOwn(summary.getSymbol());
+        }
+        if (!CommonUtil.isObjectNullOrEmpty(stock)) {
+            double latestPrice = stock.getPrice();
+            summary.setLastTradingPrice(latestPrice);
+            summary.setInternalSymbol(stock.getSymbol());
+//            updatePE(summary, stock);
+        }
+    }
     private static void updatePriceAndPE(TransactionSummary summary) {
-        Stock stock = TransactionSummaryServiceUtil.getLastTradingData(summary.getInternalSymbol());
+        Stock stock = getLastTradingData(summary.getInternalSymbol());
 
         if (CommonUtil.isObjectNullOrEmpty(stock)/*latestPrice < 0*/) {
             LOG.error("Exception fetching stock data for : {}", summary.getSymbol());
@@ -256,5 +287,34 @@ public class TransactionSummaryServiceUtil {
         } else {
             summary.setStopLossAlert(false);
         }
+    }
+
+    public static StockData getQuoteInternal(String symbol) {
+        double price = -1;
+        try {
+            String url = YahooFinance.HISTQUOTES2_BASE_URL + symbol;
+            ResponseEntity<String> response = PropertyReader.getInstance().getRestTemplate().getForEntity(url, String.class);
+            String quoteData = response.getBody();
+            String [] lines = quoteData.split("\n");
+            if (lines != null && lines.length == 2) {
+                String dataLine = lines[1];
+                String [] stockDataArr = dataLine.split(",");
+                if(stockDataArr != null && stockDataArr.length > 4) {
+                    String sPrice = stockDataArr[4];
+                    price =CommonUtil.getDouble(sPrice);
+                    if (price > 0) {
+                        StockData stockData = new StockData();
+                        stockData.setSymbol(symbol);
+                        stockData.setPrice(price);
+                        return stockData;
+                    }
+                }
+            }
+//            System.out.println(price);
+        } catch (Exception e) {
+            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(e));
+        }
+        return null;
     }
 }

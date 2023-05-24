@@ -13,7 +13,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import yahoofinance.Stock;
+import org.springframework.web.client.RestTemplate;
+import yahoofinance.YahooFinance;
 
 import java.io.PrintWriter;
 import java.time.LocalDate;
@@ -35,6 +36,27 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     private TransactionKPIService transactionKPIService;
     @Autowired
     private SymbolMapperService symbolMapperService;
+
+    @Autowired
+    private RestTemplate restTemplate;
+    // GET request
+    /*@Override
+    public StockData getQuote(TransactionSummary summary) {
+        StockData stockData = getQuoteForInternalSymbol(summary.getInternalSymbol());
+        if (!CommonUtil.isObjectNullOrEmpty(stockData)) {
+            return stockData;
+        }
+
+        stockData = getQuoteForInternalSymbol(summary.getSymbol() + Constants.NSE_EXTENSION);
+        if (CommonUtil.isObjectNullOrEmpty(stockData)) {
+            stockData = getQuoteForInternalSymbol(summary.getSymbol() + Constants.BSE_EXTENSION);
+        }
+        return stockData;
+    }*/
+    @Override
+    public StockData getQuoteForInternalSymbol(String internalSymbol) {
+        return TransactionSummaryServiceUtil.getQuoteInternal(YahooFinance.HISTQUOTES2_BASE_URL + internalSymbol);
+    }
 
     @Override
     public void processTransactions(List<Transaction> transactions) {
@@ -145,8 +167,13 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
 
     @Override
     public double getLatestPrice(String symbol) {
-        Stock stock = TransactionSummaryServiceUtil.getStockData(symbol);
-        return TransactionSummaryServiceUtil.getLatestStockPrice(stock, symbol);
+        StockData data = getQuoteForInternalSymbol(symbol);
+        //Stock stock = TransactionSummaryServiceUtil.getStockData(symbol);
+        //TransactionSummaryServiceUtil.getLatestStockPrice(stock, symbol);
+        if (!CommonUtil.isObjectNullOrEmpty(data)) {
+            return data.getPrice();
+        }
+        return -1;
     }
 
     private CompletableFuture<String> updateSummary(TransactionSummary summary) {

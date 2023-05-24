@@ -1,5 +1,6 @@
 package com.amit.journal.service;
 
+import com.amit.journal.model.StockData;
 import com.amit.journal.model.Transaction;
 import com.amit.journal.model.TransactionSummary;
 import com.amit.journal.model.TransactionSummaryKPIHolder;
@@ -9,6 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TransactionSummaryService {
+
+    // GET request
+//    StockData getQuote(TransactionSummary summary);
+
+    StockData getQuoteForInternalSymbol(String symbol);
 
     void processTransactions(List<Transaction> transactions);
 
