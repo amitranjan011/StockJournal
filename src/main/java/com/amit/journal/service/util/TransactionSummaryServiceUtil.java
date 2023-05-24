@@ -293,8 +293,9 @@ public class TransactionSummaryServiceUtil {
         double price = -1;
         try {
             String url = YahooFinance.HISTQUOTES2_BASE_URL + symbol;
-            ResponseEntity<String> response = PropertyReader.getInstance().getRestTemplate().getForEntity(url, String.class);
-            String quoteData = response.getBody();
+//            ResponseEntity<String> response = PropertyReader.getInstance().getRestTemplate().getForEntity(url, String.class);
+            String quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url, String.class);
+//            String quoteData = response.getBody();
             String [] lines = quoteData.split("\n");
             if (lines != null && lines.length == 2) {
                 String dataLine = lines[1];
