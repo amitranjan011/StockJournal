@@ -21,9 +21,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.LocalDate;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -52,6 +53,8 @@ public class HoldingServiceImpl implements HoldingService {
             Holding holdingWeek = getHoldingWeekObject(holding);
             holdingDAOImpl.persist(holdingWeek, CollectionsName.HOLDING_WEEK);
             LOG.info("Successfully saved  the holding objects in db for file : {}", file.getOriginalFilename());
+            Holding holdingMonth = getHoldingMonthObject(holding);
+            holdingDAOImpl.persist(holdingMonth, CollectionsName.HOLDING_MONTH);
         } catch (Exception ex) {
             LOG.error("Exception while saving file for holding upload for file: {} : {}"
                     , file.getOriginalFilename(), ExceptionUtils.getStackTrace(ex));
@@ -85,6 +88,12 @@ public class HoldingServiceImpl implements HoldingService {
     @Override
     public List<Holding> getAllWeekHoldings() {
         List<Holding> holdings = holdingDAOImpl.getAllWeeklyHoldings();
+        return holdings;
+    }
+
+    @Override
+    public List<Holding> getAlMonthHoldings() {
+        List<Holding> holdings = holdingDAOImpl.getAllMonthlyHoldings();
         return holdings;
     }
 
@@ -135,16 +144,54 @@ public class HoldingServiceImpl implements HoldingService {
         String previousWeekId = CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfWeek(minus7Day));
         Holding holdingDB = holdingDAOImpl.findByFieldId(Constants.ID, previousWeekId, CollectionsName.HOLDING_WEEK);
         if (CommonUtil.isObjectNullOrEmpty(holdingDB)) holdingDB = getLatestWeeklyHolding();
-        if (!CommonUtil.isObjectNullOrEmpty(holdingDB) && !holdingDB.getId().equals(holding.getId())) {
+        populateChange(holding, holdingDB);
+    }
+
+    private void populateChange(Holding holding, Holding holdingDB) {
+        holding.setDayChange(CommonUtil.round(0, 2));
+        holding.setDayChgPct(CommonUtil.round(0, 1));
+        if (isDifferentHolding(holdingDB, holding)) {
             double weekChange = holding.getTotalPortfolioValue() - holdingDB.getTotalPortfolioValue();
             double weekChgPct = (weekChange / holdingDB.getTotalPortfolioValue()) * 100;
             holding.setDayChange(CommonUtil.round(weekChange, 2));
             holding.setDayChgPct(CommonUtil.round(weekChgPct, 1));
+            holding.setNewFundAdded(holding.getNewFundAdded() + holdingDB.getNewFundAdded());
         }
     }
+
     private Holding getHoldingWeekObject(Holding holdingNew) {
         populateWeekChange(holdingNew);
         holdingNew.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfWeek(holdingNew.getDate())));
         return holdingNew;
+    }
+    private Holding getHoldingMonthObject(Holding holdingNew) {
+        try {
+            populateMonthChange(holdingNew);
+            holdingNew.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfMonth(holdingNew.getDate())));
+            return holdingNew;
+        } catch (Exception ex) {
+            LOG.error("Exception while updating monthly holding: {}"
+                    , ExceptionUtils.getStackTrace(ex));
+            throw new RuntimeException(ex);
+        }
+    }
+    private void populateMonthChange(Holding holding) {
+        holding.setDayChange(CommonUtil.round(0, 2));
+        holding.setDayChgPct(CommonUtil.round(0, 1));
+        List<Holding> holdingsDB = holdingDAOImpl.getLImitedHoldings(2);
+        Holding previousMonthHolding = null;
+        if (holdingsDB != null && holdingsDB.size() > 0) {
+            List<Holding> filteredList = holdingsDB.stream().filter(holdingDB -> !holdingDB.getId().equals(holding.getId())).collect(Collectors.toList());
+            if (filteredList != null && filteredList.size() > 0) {
+//                if (filteredList.size() == 1)
+                    previousMonthHolding = filteredList.get(0);
+//                else
+            }
+        }
+        populateChange(holding, previousMonthHolding);
+    }
+
+    private boolean isDifferentHolding(Holding previous, Holding current) {
+        return !CommonUtil.isObjectNullOrEmpty(previous) && !previous.getId().equals(current.getId());
     }
 }

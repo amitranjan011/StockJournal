@@ -17,4 +17,7 @@ public interface HoldingService {
 
     List<Holding> getAllWeekHoldings();
     Holding getLatestWeeklyHolding();
+
+    List<Holding> getAlMonthHoldings();
+
 }

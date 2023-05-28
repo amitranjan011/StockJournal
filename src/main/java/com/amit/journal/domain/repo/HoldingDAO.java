@@ -17,5 +17,7 @@ public interface HoldingDAO {
 
     List<Holding> getAllWeeklyHoldings();
 
+    List<Holding> getAllMonthlyHoldings();
+
     List<Holding> getLImitedHoldings(int number);
 }

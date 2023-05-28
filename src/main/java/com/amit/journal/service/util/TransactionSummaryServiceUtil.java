@@ -4,11 +4,13 @@ import com.amit.journal.config.PropertyReader;
 import com.amit.journal.constants.Constants;
 import com.amit.journal.model.*;
 import com.amit.journal.util.CommonUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
+import yahoofinance.histquotes2.CrumbManager;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -304,6 +306,8 @@ public class TransactionSummaryServiceUtil {
                     String sPrice = stockDataArr[4];
                     price =CommonUtil.getDouble(sPrice);
                     if (price > 0) {
+                        LOG.info("Quote for  symbol : {}, price : {}"
+                                , symbol, price);
                         StockData stockData = new StockData();
                         stockData.setSymbol(symbol);
                         stockData.setPrice(price);
@@ -315,6 +319,35 @@ public class TransactionSummaryServiceUtil {
         } catch (Exception e) {
             LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
                     , symbol, CommonUtil.getStackTrace(e));
+        }
+        return null;
+    }
+
+    public static void getQuoteInternalNew(String symbol, String crumb) {
+        double price = -1;
+        StringBuilder url = new StringBuilder(YahooFinance.QUOTES_QUERY1V7_BASE_URL + "?symbols=");
+        try {
+             url.append(symbol).append("&crumb=").append(crumb);
+//            ResponseEntity<String> response = PropertyReader.getInstance().getRestTemplate().getForEntity(url, String.class);
+            Object quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url.toString(), Object.class);
+//            String quoteData = response.getBody();
+
+            System.out.println(quoteData);
+        } catch (Exception e) {
+            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(e));
+        }
+    }
+
+    public String getCrumb() {
+        try {
+            String crumb = CrumbManager.getCrumb();
+            String cookie = CrumbManager.getCookie();
+            getQuoteInternalNew("DIXON.NS", crumb);
+            return crumb + "###" + cookie;
+        } catch (Exception e) {
+            LOG.error("Exception while fetching crumb: {} : {}"
+                    , ExceptionUtils.getStackTrace(e));
         }
         return null;
     }

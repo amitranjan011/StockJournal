@@ -122,4 +122,10 @@ public class HoldingController {
     public List<Holding> getWeekHoldings() {
         return holdingService.getAllWeekHoldings();
     }
+
+    @GetMapping(path = "/month/holdings")
+    @ApiOperation(value = "Get monthly holdings for an user")
+    public List<Holding> getMonthHoldings() {
+        return holdingService.getAlMonthHoldings();
+    }
 }

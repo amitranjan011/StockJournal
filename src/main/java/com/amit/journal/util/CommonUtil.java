@@ -17,6 +17,7 @@ public class CommonUtil {
     private static final Logger LOG = LogManager.getLogger(CommonUtil.class);
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final String DATE_FORMAT_DDMMYYYY = "ddMMyyyy";
+
     public static String getDateString(LocalDate dateObj) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
         String dateString = dateObj.format(formatter);
@@ -46,9 +47,17 @@ public class CommonUtil {
     public static String getStartOfWeek(LocalDate dateObj) {
         LocalDate startDayWeek = dateObj.with(ChronoField.DAY_OF_WEEK, 1);
         String dateString = getDateString(startDayWeek, DATE_FORMAT_DDMMYYYY);
-        LOG.info("dateString : {} for dateObj  : {}", dateString, startDayWeek.toString());
+        LOG.info("startDayWeek : {} for dateObj  : {}", dateString, startDayWeek.toString());
         return dateString;
     }
+
+    public static String getStartOfMonth(LocalDate dateObj) {
+        LocalDate startDayMonth = dateObj.with(ChronoField.DAY_OF_MONTH, 1);
+        String dateString = getDateString(startDayMonth, DATE_FORMAT_DDMMYYYY);
+        LOG.info("startDayMonth : {} for dateObj  : {}", dateString, startDayMonth.toString());
+        return dateString;
+    }
+
     public static String getStartOfDay(LocalDate dateObj) {
         String dateString = getDateString(dateObj, DATE_FORMAT_DDMMYYYY);
         LOG.info("dateString : {} for dateObj  : {}", dateString, dateObj.toString());
@@ -81,11 +90,11 @@ public class CommonUtil {
 
     public static double round(double value, int places) {
         try {
-        if (places < 0) places = 2;
+            if (places < 0) places = 2;
 
-        BigDecimal bd = new BigDecimal(Double.toString(value));
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
+            BigDecimal bd = new BigDecimal(Double.toString(value));
+            bd = bd.setScale(places, RoundingMode.HALF_UP);
+            return bd.doubleValue();
         } catch (Exception e) {
 //            LOG.error("Exception rounding : {}, {}", value, CommonUtil.getStackTrace(e));
             return 0;
@@ -95,8 +104,8 @@ public class CommonUtil {
     public static double getDouble(String number) {
         try {
             return Double.parseDouble(number);
-        }  catch (Exception e) {
-          LOG.error("Exception converting : {}, {}", number, CommonUtil.getStackTrace(e));
+        } catch (Exception e) {
+            LOG.error("Exception converting : {}, {}", number, CommonUtil.getStackTrace(e));
             return 0;
         }
     }
