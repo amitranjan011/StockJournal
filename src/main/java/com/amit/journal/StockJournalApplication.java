@@ -40,6 +40,7 @@ public class StockJournalApplication {
 	@SuppressWarnings("static-access")
 	@PostConstruct
 	public void initTimeZone() {
+		System.setProperty("jdk.tls.client.protocols", "TLSv1.2");
 		System.setProperty("yahoofinance.baseurl.quotesquery1v7", "https://query1.finance.yahoo.com/v6/finance/quote");
 		// Setting Spring Boot SetTimeZone
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
