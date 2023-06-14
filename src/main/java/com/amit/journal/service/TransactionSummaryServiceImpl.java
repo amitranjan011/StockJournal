@@ -57,6 +57,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     }*/
     @Override
     public StockData getQuoteForInternalSymbol(String internalSymbol) {
+
         return TransactionSummaryServiceUtil.getQuoteInternal(internalSymbol);
     }
 
@@ -327,5 +328,10 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         } catch (Exception exception) {
             LOG.error("Exception exporting summary list for position status : {}, {}", type, CommonUtil.getStackTrace(exception));
         }
+    }
+
+    @Override
+    public String testStockData(String symbol) {
+        return TransactionSummaryServiceUtil.testStockData(symbol);
     }
 }

@@ -51,11 +51,20 @@ public class CommonUtil {
         return dateString;
     }
 
+    public static LocalDate getStartDateOfWeek(LocalDate dateObj) {
+        LocalDate startDayWeek = dateObj.with(ChronoField.DAY_OF_WEEK, 1);
+        LOG.info("startDayWeek : {} for dateObj  : {}", startDayWeek, dateObj);
+        return startDayWeek;
+    }
     public static String getStartOfMonth(LocalDate dateObj) {
         LocalDate startDayMonth = dateObj.with(ChronoField.DAY_OF_MONTH, 1);
         String dateString = getDateString(startDayMonth, DATE_FORMAT_DDMMYYYY);
         LOG.info("startDayMonth : {} for dateObj  : {}", dateString, startDayMonth.toString());
         return dateString;
+    }
+    public static LocalDate getStartDateOfMonth(LocalDate dateObj) {
+        LocalDate startDayMonth = dateObj.with(ChronoField.DAY_OF_MONTH, 1);
+        return startDayMonth;
     }
 
     public static String getStartOfDay(LocalDate dateObj) {
@@ -107,6 +116,15 @@ public class CommonUtil {
         } catch (Exception e) {
             LOG.error("Exception converting : {}, {}", number, CommonUtil.getStackTrace(e));
             return 0;
+        }
+    }
+
+    public static double getDoubleFromBigDecimal(BigDecimal price) {
+        try {
+            return price.doubleValue();
+        } catch (Exception e) {
+            LOG.error("Exception converting : {}, {}", price, CommonUtil.getStackTrace(e));
+            return -1;
         }
     }
 }

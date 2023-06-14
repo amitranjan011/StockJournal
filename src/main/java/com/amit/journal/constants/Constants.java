@@ -1,6 +1,9 @@
 package com.amit.journal.constants;
 
 public interface Constants {
+    String YAHOO_FINANCE_COOKIE_URL = "https://fc.yahoo.com";
+    String YAHOO_COOKIE = "cookie";
+    String YAHOO_CRUMB = "crumb";
     String ID = "_id";
     String USERID_HEADER = "userId";
     String TRANSACTION_TYPE_BUY = "BUY";

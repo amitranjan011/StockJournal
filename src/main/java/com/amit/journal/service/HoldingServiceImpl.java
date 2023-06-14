@@ -162,12 +162,14 @@ public class HoldingServiceImpl implements HoldingService {
     private Holding getHoldingWeekObject(Holding holdingNew) {
         populateWeekChange(holdingNew);
         holdingNew.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfWeek(holdingNew.getDate())));
+        holdingNew.setDate(CommonUtil.getStartDateOfWeek(holdingNew.getDate()));
         return holdingNew;
     }
     private Holding getHoldingMonthObject(Holding holdingNew) {
         try {
             populateMonthChange(holdingNew);
             holdingNew.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfMonth(holdingNew.getDate())));
+            holdingNew.setDate(CommonUtil.getStartDateOfWeek(holdingNew.getDate()));
             return holdingNew;
         } catch (Exception ex) {
             LOG.error("Exception while updating monthly holding: {}"

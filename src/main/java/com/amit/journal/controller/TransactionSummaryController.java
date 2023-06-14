@@ -119,6 +119,14 @@ public class TransactionSummaryController {
         response.setHeader("Content-Disposition", "attachment; file=" + name);
         response.setHeader("fileName", name);
         transactionSummaryService.exportTransactionSummary(response.getWriter(), type);
+    }
 
+    @GetMapping(value = "/transactions/summary/test/LTP/{symbol}")
+    @ApiOperation(value = "Get LTP for a symbol ")
+    @Operation(summary = "Get LTP for a symbol  ",
+            description = "Get LTP for a symbol "
+            , responses = {@ApiResponse(responseCode = "200", description = "successful operation")})
+    public String testStockData(@PathVariable String symbol) {
+        return transactionSummaryService.testStockData(symbol);
     }
 }

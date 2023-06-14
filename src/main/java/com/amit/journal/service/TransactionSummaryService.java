@@ -40,4 +40,6 @@ public interface TransactionSummaryService {
     void updateStopLoss(Transaction transaction);
 
     void exportTransactionSummary(PrintWriter writer, String type);
+
+    String testStockData(String symbol);
 }

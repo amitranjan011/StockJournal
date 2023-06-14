@@ -7,7 +7,6 @@ import com.amit.journal.util.CommonUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.ResponseEntity;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes2.CrumbManager;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Map;
 
 public class TransactionSummaryServiceUtil {
     private static final Logger LOG = LogManager.getLogger(TransactionSummaryServiceUtil.class);
@@ -290,6 +290,23 @@ public class TransactionSummaryServiceUtil {
             summary.setStopLossAlert(false);
         }
     }
+    public static StockData getQuoteInternalNew(String symbol) {
+        StockData stockData = new StockData();
+        try {
+            Map<String, String> dataMap = YahooFinanceUtil.getCookie();
+
+            System.setProperty("yahoofinance.crumb", dataMap.get(Constants.YAHOO_CRUMB));
+            System.setProperty("yahoofinance.cookie", dataMap.get(Constants.YAHOO_COOKIE));
+            Stock stock = getLastTradingData(symbol);
+            stockData.setPrice(CommonUtil.getDoubleFromBigDecimal(stock.getQuote().getPrice()));
+            stockData.setSymbol(stock.getSymbol());
+        } catch (Exception e) {
+            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
+                    , symbol, CommonUtil.getStackTrace(e));
+        }
+        return stockData;
+    }
+
 
     public static StockData getQuoteInternal(String symbol) {
         double price = -1;
@@ -339,12 +356,19 @@ public class TransactionSummaryServiceUtil {
         }
     }
 
-    public String getCrumb() {
+    public static String testStockData(String symbol) {
         try {
-            String crumb = CrumbManager.getCrumb();
-            String cookie = CrumbManager.getCookie();
-            getQuoteInternalNew("DIXON.NS", crumb);
-            return crumb + "###" + cookie;
+            String storedCrumb = System.getProperty("yahoofinance.crumb");
+            if (CommonUtil.isNullOrEmpty(storedCrumb)) {
+                Map<String, String> dataMap = YahooFinanceUtil.getCookie();
+                storedCrumb = dataMap.get(Constants.YAHOO_CRUMB);
+                System.setProperty("yahoofinance.crumb", storedCrumb);
+                System.setProperty("yahoofinance.cookie", dataMap.get(Constants.YAHOO_COOKIE));
+            }
+//            String crumb = CrumbManager.getCrumb();
+//            String cookie = CrumbManager.getCookie();
+            getQuoteInternalNew(symbol, storedCrumb);
+            return "";
         } catch (Exception e) {
             LOG.error("Exception while fetching crumb: {} : {}"
                     , ExceptionUtils.getStackTrace(e));
