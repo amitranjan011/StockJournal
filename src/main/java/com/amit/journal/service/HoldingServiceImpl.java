@@ -169,7 +169,7 @@ public class HoldingServiceImpl implements HoldingService {
         try {
             populateMonthChange(holdingNew);
             holdingNew.setId(CommonUtil.generateId(UserContext.getUserId(), CommonUtil.getStartOfMonth(holdingNew.getDate())));
-            holdingNew.setDate(CommonUtil.getStartDateOfWeek(holdingNew.getDate()));
+            holdingNew.setDate(CommonUtil.getStartDateOfMonth(holdingNew.getDate()));
             return holdingNew;
         } catch (Exception ex) {
             LOG.error("Exception while updating monthly holding: {}"
