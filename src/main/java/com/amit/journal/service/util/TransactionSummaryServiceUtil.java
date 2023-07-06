@@ -203,7 +203,10 @@ public class TransactionSummaryServiceUtil {
         return "";
     }
     public static TransactionSummary populateAdditionalData(TransactionSummary summary) {
-        updatePriceAndPEOwn(summary);
+        if (summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_OPEN)) {
+            updatePriceAndPEOwn(summary);
+        }
+
         if (summary.getUnsoldQty() > 0) {
             double unsoldLatestValue = summary.getUnsoldQty() * summary.getLastTradingPrice();
             double unsoldBuyValue = summary.getUnsoldQty() * summary.getBuyPrice();
