@@ -204,6 +204,7 @@ public class TransactionSummaryServiceUtil {
     }
     public static TransactionSummary populateAdditionalData(TransactionSummary summary) {
         if (summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_OPEN)) {
+
             updatePriceAndPEOwn(summary);
         }
 
