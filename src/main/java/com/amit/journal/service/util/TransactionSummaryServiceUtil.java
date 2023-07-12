@@ -93,7 +93,7 @@ public class TransactionSummaryServiceUtil {
         transactionSummary.setBatchId(transactionEntry.getBatchId());
         transactionSummary.setName(transactionEntry.getName());
         transactionSummary.setSymbol(transactionEntry.getSymbol());
-        transactionSummary.setInternalSymbol((transactionEntry.getSymbol() + Constants.BSE_EXTENSION));
+        transactionSummary.setInternalSymbol((transactionEntry.getSymbol() + Constants.NSE_EXTENSION));
         transactionSummary.setComments(transactionEntry.getComments());
         transactionSummary.setStrategy(transactionEntry.getStrategy());
         transactionSummary.setAction(transactionEntry.getAction());
