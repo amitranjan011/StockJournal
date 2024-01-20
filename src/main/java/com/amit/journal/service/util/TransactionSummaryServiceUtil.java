@@ -320,8 +320,8 @@ public class TransactionSummaryServiceUtil {
             String quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url, String.class);
 //            String quoteData = response.getBody();
             String [] lines = quoteData.split("\n");
-            if (lines != null && lines.length == 2) {
-                String dataLine = lines[1];
+            if (lines != null && lines.length > 1 && lines.length >= 2) {
+                String dataLine = lines[lines.length - 1];
                 String [] stockDataArr = dataLine.split(",");
                 if(stockDataArr != null && stockDataArr.length > 4) {
                     String sPrice = stockDataArr[4];
