@@ -354,7 +354,7 @@ public class TransactionSummaryServiceUtil {
         try {
             url.append(symbol).append("&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance");
             HashMap quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url.toString(), HashMap.class);
-            LOG.info("quoteData for symbol: {} - {}", symbol, quoteData.get("spark") );
+//            LOG.info("quoteData for symbol: {} - {}", symbol, quoteData.get("spark") );
             HashMap<String, Object> sparkData = (HashMap<String, Object>) quoteData.get("spark");
             if (sparkData != null) {
                 List<Object> result = (List<Object>)sparkData.get("result");
