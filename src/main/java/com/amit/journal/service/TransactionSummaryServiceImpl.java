@@ -55,6 +55,9 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         }
         return stockData;
     }*/
+
+
+    //Not really used in code.
     @Override
     public StockData getQuoteForInternalSymbol(String internalSymbol) {
 
@@ -94,6 +97,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         return TransactionSummaryServiceUtil.mapToTransactionSummary(transactionEntry);
     }
     private String processTransactionSummary(TransactionSummary transactionSummary) {
+        LOG.debug("transactionSummary created is :::1#### {}", transactionSummary);
         TransactionSummary transactionSummaryDB = transactionsSummaryDAO.findBySymbolAndOpen(transactionSummary.getSymbol());
         LOG.debug("transactionSummaryDB in db is : {}", transactionSummaryDB);
         if (CommonUtil.isObjectNullOrEmpty(transactionSummaryDB)) {
@@ -168,6 +172,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         LOG.info("Updating LTP and related details completed now...");
     }
 
+    //Not really used in code.
     @Override
     public double getLatestPrice(String symbol) {
         StockData data = getQuoteForInternalSymbol(symbol);

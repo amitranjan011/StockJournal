@@ -4,18 +4,21 @@ import com.amit.journal.config.PropertyReader;
 import com.amit.journal.constants.Constants;
 import com.amit.journal.model.*;
 import com.amit.journal.util.CommonUtil;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
-import yahoofinance.histquotes2.CrumbManager;
+
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
 
 public class TransactionSummaryServiceUtil {
     private static final Logger LOG = LogManager.getLogger(TransactionSummaryServiceUtil.class);
@@ -33,6 +36,7 @@ public class TransactionSummaryServiceUtil {
             transactionSummary.setSellPrice(transactionEntry.getPrice());
             transactionSummary.setSellValue(transactionSummary.getSellQuantity() * transactionSummary.getSellPrice());
             transactionSummary.setSellDate(transactionEntry.getTransactionDate());
+//            transactionSummary.setBuyValue(transactionSummary.getBuyValue() - (transactionSummary.getBuyPrice() * transactionEntry.getQuantity()));
         }
     }
 
@@ -50,6 +54,8 @@ public class TransactionSummaryServiceUtil {
             tranSummaryDB.setSellDate(tranSummaryNew.getSellDate());
             if (tranSummaryDB.getUnsoldQty() == 0) tranSummaryDB.setPositionStatus(Constants.POSITION_STATUS_CLOSED);
             tranSummaryDB.setDaysHeld(getDays(tranSummaryDB));
+
+//            tranSummaryDB.setBuyValue(tranSummaryDB.getBuyValue() - (tranSummaryDB.getBuyPrice() * tranSummaryNew.getSellQuantity()));
         }
         tranSummaryDB.setBatchId(tranSummaryNew.getBatchId());
         if (tranSummaryNew.getStopLoss() > 0) tranSummaryDB.setStopLoss(tranSummaryNew.getStopLoss());
@@ -235,7 +241,7 @@ public class TransactionSummaryServiceUtil {
 
         if (CommonUtil.isObjectNullOrEmpty(stock)/*latestPrice < 0*/) {
             LOG.error("Exception fetching stock data for : {}", summary.getSymbol());
-            stock = TransactionSummaryServiceUtil.getStockDataOwn(summary.getSymbol());
+            stock = getStockDataOwn(summary.getSymbol());
         }
         if (!CommonUtil.isObjectNullOrEmpty(stock)) {
             double latestPrice = stock.getPrice();
@@ -244,40 +250,40 @@ public class TransactionSummaryServiceUtil {
 //            updatePE(summary, stock);
         }
     }
-    private static void updatePriceAndPE(TransactionSummary summary) {
-        Stock stock = getLastTradingData(summary.getInternalSymbol());
+//    private static void updatePriceAndPE(TransactionSummary summary) {
+//        Stock stock = getLastTradingData(summary.getInternalSymbol());
+//
+//        if (CommonUtil.isObjectNullOrEmpty(stock)/*latestPrice < 0*/) {
+//            LOG.error("Exception fetching stock data for : {}", summary.getSymbol());
+//            stock = TransactionSummaryServiceUtil.getStockData(summary.getSymbol());
+//
+//        }
+//        if (!CommonUtil.isObjectNullOrEmpty(stock)) {
+//            double latestPrice = TransactionSummaryServiceUtil.getLatestStockPrice(stock, summary.getSymbol());
+//            summary.setLastTradingPrice(latestPrice);
+//            summary.setInternalSymbol(stock.getSymbol());
+//            updatePE(summary, stock);
+//        }
+//    }
+//    private static void updatePE(TransactionSummary summary, Stock stock) {
+//        double pe = getLatestPe(stock, summary.getSymbol());
+//
+//        if (summary.getPeData() == null) {
+//            PEData peData = new PEData();
+//            peData.setInitPe(pe);
+//            peData.setCurrentPe(pe);
+//            summary.setPeData(peData);
+//        } else {
+//            PEData peData = summary.getPeData();
+//            if (peData.getInitPe() == 0) peData.setInitPe(pe);
+//            if (peData.getCurrentPe() == 0) peData.setCurrentPe(pe);
+//        }
+//    }
 
-        if (CommonUtil.isObjectNullOrEmpty(stock)/*latestPrice < 0*/) {
-            LOG.error("Exception fetching stock data for : {}", summary.getSymbol());
-            stock = TransactionSummaryServiceUtil.getStockData(summary.getSymbol());
 
-        }
-        if (!CommonUtil.isObjectNullOrEmpty(stock)) {
-            double latestPrice = TransactionSummaryServiceUtil.getLatestStockPrice(stock, summary.getSymbol());
-            summary.setLastTradingPrice(latestPrice);
-            summary.setInternalSymbol(stock.getSymbol());
-            updatePE(summary, stock);
-        }
-    }
-    private static void updatePE(TransactionSummary summary, Stock stock) {
-        double pe = getLatestPe(stock, summary.getSymbol());
-
-        if (summary.getPeData() == null) {
-            PEData peData = new PEData();
-            peData.setInitPe(pe);
-            peData.setCurrentPe(pe);
-            summary.setPeData(peData);
-        } else {
-            PEData peData = summary.getPeData();
-            if (peData.getInitPe() == 0) peData.setInitPe(pe);
-            if (peData.getCurrentPe() == 0) peData.setCurrentPe(pe);
-        }
-    }
-
-
-    private static void updateSymbolForNSE(TransactionSummary summary) {
-        summary.setInternalSymbol(summary.getSymbol() + Constants.NSE_EXTENSION);
-    }
+//    private static void updateSymbolForNSE(TransactionSummary summary) {
+//        summary.setInternalSymbol(summary.getSymbol() + Constants.NSE_EXTENSION);
+//    }
 
     public static void setStopLossIndicator(TransactionSummary summary) {
         if (summary.getPositionStatus().equalsIgnoreCase(Constants.POSITION_STATUS_CLOSED)) {
@@ -294,89 +300,115 @@ public class TransactionSummaryServiceUtil {
             summary.setStopLossAlert(false);
         }
     }
-    public static StockData getQuoteInternalNew(String symbol) {
-        StockData stockData = new StockData();
-        try {
-            Map<String, String> dataMap = YahooFinanceUtil.getCookie();
-
-            System.setProperty("yahoofinance.crumb", dataMap.get(Constants.YAHOO_CRUMB));
-            System.setProperty("yahoofinance.cookie", dataMap.get(Constants.YAHOO_COOKIE));
-            Stock stock = getLastTradingData(symbol);
-            stockData.setPrice(CommonUtil.getDoubleFromBigDecimal(stock.getQuote().getPrice()));
-            stockData.setSymbol(stock.getSymbol());
-        } catch (Exception e) {
-            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
-                    , symbol, CommonUtil.getStackTrace(e));
-        }
-        return stockData;
-    }
+//    public static StockData getQuoteInternalNew(String symbol) {
+//        StockData stockData = new StockData();
+//        try {
+//            Map<String, String> dataMap = YahooFinanceUtil.getCookie();
+//
+//            System.setProperty("yahoofinance.crumb", dataMap.get(Constants.YAHOO_CRUMB));
+//            System.setProperty("yahoofinance.cookie", dataMap.get(Constants.YAHOO_COOKIE));
+//            Stock stock = getLastTradingData(symbol);
+//            stockData.setPrice(CommonUtil.getDoubleFromBigDecimal(stock.getQuote().getPrice()));
+//            stockData.setSymbol(stock.getSymbol());
+//        } catch (Exception e) {
+//            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
+//                    , symbol, CommonUtil.getStackTrace(e));
+//        }
+//        return stockData;
+//    }
 
 
     public static StockData getQuoteInternal(String symbol) {
         double price = -1;
+        return getQuoteInternalNew(symbol);
+//        try {
+//            String url = YahooFinance.HISTQUOTES2_BASE_URL + symbol;
+//            String quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url, String.class);
+//            String [] lines = quoteData.split("\n");
+//            if (lines != null && lines.length > 1 && lines.length >= 2) {
+//                String dataLine = lines[lines.length-1];
+//                String [] stockDataArr = dataLine.split(",");
+//                if(stockDataArr != null && stockDataArr.length > 4) {
+//                    String sPrice = stockDataArr[4];
+//                    price =CommonUtil.getDouble(sPrice);
+//                    if (price > 0) {
+//                        LOG.info("Quote for  symbol : {}, price : {}"
+//                                , symbol, price);
+//                        StockData stockData = new StockData();
+//                        stockData.setSymbol(symbol);
+//                        stockData.setPrice(price);
+//                        return stockData;
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
+//                    , symbol, CommonUtil.getStackTrace(e));
+//        }
+//        return null;
+    }
+
+    public static StockData getQuoteInternalNew(String symbol) {
+        double price = -1;
+        StringBuilder url = new StringBuilder("https://query1.finance.yahoo.com/v7/finance/spark?symbols=");
         try {
-            String url = YahooFinance.HISTQUOTES2_BASE_URL + symbol;
-//            ResponseEntity<String> response = PropertyReader.getInstance().getRestTemplate().getForEntity(url, String.class);
-            String quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url, String.class);
-//            String quoteData = response.getBody();
-            String [] lines = quoteData.split("\n");
-            if (lines != null && lines.length == 2) {
-                String dataLine = lines[1];
-                String [] stockDataArr = dataLine.split(",");
-                if(stockDataArr != null && stockDataArr.length > 4) {
-                    String sPrice = stockDataArr[4];
-                    price =CommonUtil.getDouble(sPrice);
+            url.append(symbol).append("&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance");
+            HashMap quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url.toString(), HashMap.class);
+            LOG.info("quoteData for symbol: {} - {}", symbol, quoteData.get("spark") );
+            HashMap<String, Object> sparkData = (HashMap<String, Object>) quoteData.get("spark");
+            if (sparkData != null) {
+                List<Object> result = (List<Object>)sparkData.get("result");
+                if (result != null && result.size() > 0) {
+                    HashMap<String, Object> results = (HashMap<String, Object>)result.get(0);
+                    List<Object> response = (List<Object>)results.get("response");
+                    HashMap<String, Object> metaObj = ( HashMap<String, Object>)response.get(0);
+                    HashMap<String, Object> metaMap = (HashMap<String, Object>)metaObj.get("meta");
+                    price = (Double) metaMap.get("regularMarketPrice");
+                    LOG.info("quoteData for symbol: {} - price : {}", symbol, price );
                     if (price > 0) {
-                        LOG.info("Quote for  symbol : {}, price : {}"
-                                , symbol, price);
                         StockData stockData = new StockData();
                         stockData.setSymbol(symbol);
                         stockData.setPrice(price);
                         return stockData;
                     }
+                    }
                 }
-            }
-//            System.out.println(price);
         } catch (Exception e) {
-            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
-                    , symbol, CommonUtil.getStackTrace(e));
+            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}", symbol, CommonUtil.getStackTrace(e));
         }
         return null;
-    }
-
-    public static void getQuoteInternalNew(String symbol, String crumb) {
-        double price = -1;
-        StringBuilder url = new StringBuilder(YahooFinance.QUOTES_QUERY1V7_BASE_URL + "?symbols=");
-        try {
-             url.append(symbol).append("&crumb=").append(crumb);
-//            ResponseEntity<String> response = PropertyReader.getInstance().getRestTemplate().getForEntity(url, String.class);
-            Object quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url.toString(), Object.class);
-//            String quoteData = response.getBody();
-
-            System.out.println(quoteData);
-        } catch (Exception e) {
-            LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}"
-                    , symbol, CommonUtil.getStackTrace(e));
-        }
     }
 
     public static String testStockData(String symbol) {
         try {
-            String storedCrumb = System.getProperty("yahoofinance.crumb");
-            if (CommonUtil.isNullOrEmpty(storedCrumb)) {
-                Map<String, String> dataMap = YahooFinanceUtil.getCookie();
-                storedCrumb = dataMap.get(Constants.YAHOO_CRUMB);
-                System.setProperty("yahoofinance.crumb", storedCrumb);
-                System.setProperty("yahoofinance.cookie", dataMap.get(Constants.YAHOO_COOKIE));
+            double price = -1;
+            StockData stock = getQuoteInternalNew(symbol);
+            if (stock != null) {
+                price = stock.getPrice();
+                LOG.info("Quote for  symbol : {}, price : {}"
+                        , symbol, price);
+                return "Quote for  symbol : " + symbol + " is : " + price;
             }
-//            String crumb = CrumbManager.getCrumb();
-//            String cookie = CrumbManager.getCookie();
-            getQuoteInternalNew(symbol, storedCrumb);
-            return "";
         } catch (Exception e) {
-            LOG.error("Exception while fetching crumb: {} : {}"
-                    , ExceptionUtils.getStackTrace(e));
+
         }
-        return null;
+            return null;
+//        try {
+//            String storedCrumb = System.getProperty("yahoofinance.crumb");
+//            if (CommonUtil.isNullOrEmpty(storedCrumb)) {
+//                Map<String, String> dataMap = YahooFinanceUtil.getCookie();
+//                storedCrumb = dataMap.get(Constants.YAHOO_CRUMB);
+//                System.setProperty("yahoofinance.crumb", storedCrumb);
+//                System.setProperty("yahoofinance.cookie", dataMap.get(Constants.YAHOO_COOKIE));
+//            }
+////            String crumb = CrumbManager.getCrumb();
+////            String cookie = CrumbManager.getCookie();
+//            getQuoteInternalNew(symbol, storedCrumb);
+//            return "";
+//        } catch (Exception e) {
+//            LOG.error("Exception while fetching crumb: {} : {}"
+//                    , ExceptionUtils.getStackTrace(e));
+//        }
+
     }
 }
