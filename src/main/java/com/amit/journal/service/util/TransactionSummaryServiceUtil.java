@@ -8,6 +8,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 
@@ -353,9 +358,19 @@ public class TransactionSummaryServiceUtil {
         StringBuilder url = new StringBuilder("https://query1.finance.yahoo.com/v7/finance/spark?symbols=");
         try {
             url.append(symbol).append("&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance");
-            HashMap quoteData = PropertyReader.getInstance().getRestTemplate().getForObject(url.toString(), HashMap.class);
+//            HashMap quoteData = new HashMap<>(); //PropertyReader.getInstance().getRestTemplate().getForObject(url.toString(), HashMap.class);
 //            LOG.info("quoteData for symbol: {} - {}", symbol, quoteData.get("spark") );
-            HashMap<String, Object> sparkData = (HashMap<String, Object>) quoteData.get("spark");
+
+
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+            headers.add(HttpHeaders.USER_AGENT, "Mozilla/5.0");
+            headers.add(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.8");
+            HttpEntity<?> entity = new HttpEntity<Object>(headers);
+            HttpEntity<HashMap> quoteData = PropertyReader.getInstance().getRestTemplate().exchange(url.toString(), HttpMethod.GET, entity, HashMap.class);
+            LOG.info("quoteData for symbol: {} - {}", symbol, quoteData.getBody() );
+
+
+            HashMap<String, Object> sparkData = (HashMap<String, Object>) quoteData.getBody().get("spark");
             if (sparkData != null) {
                 List<Object> result = (List<Object>)sparkData.get("result");
                 if (result != null && result.size() > 0) {
@@ -371,8 +386,8 @@ public class TransactionSummaryServiceUtil {
                         stockData.setPrice(price);
                         return stockData;
                     }
-                    }
                 }
+            }
         } catch (Exception e) {
             LOG.error("Exception fetching getQuoteInternal for : {}, exception : {}", symbol, CommonUtil.getStackTrace(e));
         }

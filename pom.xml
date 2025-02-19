@@ -61,3 +61,4 @@
 		</plugins>
 	</build>
 </project>
+<!-- spring.data.mongodb.uri=mongodb+srv://toaranjan:HjtkTvP2nz2hy5In@cluster0.5srgr4z.mongodb.net/Journal?tlsAllowInvalidHostnames=true -->
